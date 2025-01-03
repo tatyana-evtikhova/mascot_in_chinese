@@ -1,0 +1,867 @@
+:root {
+    --notion-bg: #ffffff;
+    --notion-text: #37352f;
+    --notion-gray: #9b9a97;
+    --notion-brown: #64473a;
+    --notion-orange: #d9730d;
+    --notion-yellow: #dfab01;
+    --notion-blue: #0b6e99;
+    --notion-purple: #6940a5;
+    --notion-pink: #ad1a72;
+    --notion-red: #e03e3e;
+    --notion-border: rgba(55, 53, 47, 0.09);
+    --notion-hover: rgba(55, 53, 47, 0.08);
+    --notion-shadow: rgba(15, 15, 15, 0.05);
+    --sidebar-width: 280px;
+    --notion-primary: #2383E2;
+    --notion-hover-bg: rgba(55, 53, 47, 0.08);
+    --notion-text-hover: rgba(55, 53, 47, 0.7);
+}
+
+/* Base Styles */
+body {
+    background: var(--notion-bg);
+    color: var(--notion-text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Base Layout */
+.lesson-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header Section */
+.lesson-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lesson-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lesson-number {
+    font-size: 0.9rem;
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.lesson-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.lesson-title .chinese-text {
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: var(--notion-text);
+    cursor: pointer;
+}
+
+.lesson-title .english-title {
+    font-size: 1.6rem;
+    color: var(--notion-gray);
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .lesson-title .chinese-text {
+        font-size: 2rem;
+    }
+
+    .lesson-title .english-title {
+        font-size: 1.4rem;
+    }
+}
+
+/* Content Layout */
+.lesson-content-wrapper {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Left Column */
+.lesson-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.lecture-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.lecture-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+/* Section Headers */
+.section-header {
+    margin-bottom: 1.5rem;
+}
+
+.section-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.section-title {
+    flex: 1;
+}
+
+.section-title h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.section-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Right Column */
+.lesson-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.tips-section,
+.practice-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.tips-section h3,
+.practice-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+/* Practice Buttons */
+.practice-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.practice-btn {
+    width: 100%;
+    padding: 0.875rem;
+    margin-bottom: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--notion-hover-bg);
+    color: var(--notion-text);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.practice-btn:hover {
+    background: var(--notion-primary);
+    color: white;
+}
+
+.practice-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Navigation */
+.lesson-navigation {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.next-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.next-btn:hover {
+    background: #43a047;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .lesson-content-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .lesson-sidebar {
+        position: static;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .lesson-container {
+        padding: 1rem;
+    }
+
+    .lesson-header {
+        padding: 1.5rem;
+    }
+
+    .lesson-title {
+        font-size: 1.5rem;
+    }
+
+    .lesson-content {
+        padding: 1.5rem;
+    }
+}
+
+/* Notion-style Block */
+.notion-block {
+    padding: 0.5rem 0;
+    margin: 0.5rem 0;
+    border-radius: 3px;
+    transition: background 100ms ease-in;
+}
+
+.notion-block:hover {
+    background: var(--notion-hover);
+}
+
+/* Collapsible Sections */
+.collapsible {
+    border: 1px solid var(--notion-border);
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.collapsible-header {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.collapsible-content {
+    padding: 1rem;
+    border-top: 1px solid var(--notion-border);
+}
+
+/* Table of Contents */
+.toc {
+    position: sticky;
+    top: 2rem;
+}
+
+.toc-title {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: var(--notion-gray);
+    margin-bottom: 1rem;
+}
+
+.toc-item {
+    padding: 0.375rem 0;
+    color: var(--notion-text);
+    opacity: 0.8;
+    text-decoration: none;
+    display: block;
+    font-size: 0.875rem;
+    transition: opacity 100ms ease-in;
+}
+
+.toc-item:hover {
+    opacity: 1;
+}
+
+.toc-item.active {
+    color: var(--notion-blue);
+    opacity: 1;
+}
+
+/* Content Elements */
+.theory-block, .practice-block {
+    background: #fbfbfa;
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+/* Interactive Elements */
+.chinese-character {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background: var(--notion-hover);
+    border-radius: 3px;
+    margin: 0 0.25rem;
+    cursor: pointer;
+    transition: background 100ms ease-in;
+}
+
+.chinese-character:hover {
+    background: rgba(55, 53, 47, 0.12);
+}
+
+/* Progress Bar */
+.progress-bar {
+    height: 4px;
+    background: var(--notion-border);
+    border-radius: 2px;
+    margin: 2rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--notion-blue);
+    border-radius: 2px;
+    transition: width 300ms ease-in-out;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notion-block {
+    animation: slideIn 200ms ease-out;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Logo/Mascot Styles */
+.mascot-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+}
+
+.mascot-container {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+.panda-face {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.panda-ears {
+    position: absolute;
+    top: -8px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.panda-ear {
+    width: 16px;
+    height: 16px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.panda-eyes {
+    position: absolute;
+    top: 12px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.panda-eye {
+    width: 12px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.panda-nose {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.chinese-hat {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 15px;
+    background: #e60012;
+    border-radius: 50% 50% 0 0;
+    border: 2px solid #d4af37;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: 'Ming Imperial', cursive;
+    font-size: 1.8rem;
+    color: var(--notion-text);
+    background: linear-gradient(45deg, #e60012, #ff1a1a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo-subtitle {
+    font-size: 0.9rem;
+    color: var(--notion-gray);
+}
+
+/* Animation */
+@keyframes pandaBlink {
+    0%, 90%, 100% {
+        transform: scaleY(1);
+    }
+    95% {
+        transform: scaleY(0.1);
+    }
+}
+
+.panda-eye {
+    animation: pandaBlink 4s infinite;
+}
+
+.panda-eye:last-child {
+    animation-delay: 0.2s;
+}
+
+@keyframes hatBob {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        transform: translateX(-50%) translateY(-2px);
+    }
+}
+
+.chinese-hat {
+    animation: hatBob 2s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .mascot-container {
+        width: 40px;
+        height: 40px;
+    }
+
+    .panda-face {
+        width: 32px;
+        height: 32px;
+    }
+
+    .logo-title {
+        font-size: 1.4rem;
+    }
+
+    .logo-subtitle {
+        font-size: 0.8rem;
+    }
+}
+
+/* Chinese Text Elements */
+.chinese-text {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    padding: 0.1em 0.2em;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.chinese-text:hover {
+    background-color: var(--notion-hover-bg);
+}
+
+.chinese-text::after {
+    content: '🔊';
+    position: absolute;
+    top: -0.5em;
+    right: -0.5em;
+    font-size: 0.8em;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.chinese-text:hover::after {
+    opacity: 0.6;
+}
+
+/* Section Styling */
+.section {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--notion-text);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--notion-border);
+}
+
+/* Vocabulary Table */
+.vocabulary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1rem 0;
+}
+
+.vocabulary-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--notion-border);
+}
+
+.vocabulary-table tr:hover {
+    background-color: var(--notion-hover-bg);
+}
+
+/* Right Sidebar */
+.lesson-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.sidebar-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--notion-text);
+}
+
+/* Practice Section */
+.practice-section {
+    margin-top: 2rem;
+}
+
+.practice-btn {
+    width: 100%;
+    padding: 0.875rem;
+    margin-bottom: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--notion-hover-bg);
+    color: var(--notion-text);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.practice-btn:hover {
+    background: var(--notion-primary);
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .lesson-content-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .lesson-sidebar {
+        position: static;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .lesson-content-wrapper {
+        padding: 1rem;
+    }
+
+    .lesson-content {
+        padding: 1.5rem;
+    }
+
+    .lesson-title {
+        font-size: 2rem;
+    }
+}
+
+/* Word Card Styling */
+.vocabulary-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.word-card {
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--notion-border);
+}
+
+.word-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.card-main {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(to bottom, #ffffff, #fafafa);
+    border-bottom: 1px solid var(--notion-border);
+}
+
+.word-chinese {
+    font-size: 2.5rem;
+    color: var(--notion-text);
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.word-pinyin {
+    font-size: 1.2rem;
+    color: var(--notion-primary);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px;
+}
+
+.word-english {
+    font-size: 1rem;
+    color: var(--notion-gray);
+    font-weight: 500;
+}
+
+/* Example Section */
+.card-examples {
+    padding: 1rem;
+    background: #fafafa;
+}
+
+.example-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.example-item:hover {
+    background: rgba(0,0,0,0.03);
+}
+
+.example-chinese {
+    font-size: 1.1rem;
+    color: var(--notion-text);
+}
+
+.example-pinyin {
+    font-size: 0.9rem;
+    color: var(--notion-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+.example-english {
+    font-size: 0.9rem;
+    color: var(--notion-gray);
+}
+
+/* Sound Icon */
+.word-card::after {
+    content: '🔊';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.word-card:hover::after {
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .vocabulary-list {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .word-chinese {
+        font-size: 2.5rem;
+    }
+
+    .word-pinyin {
+        font-size: 1.2rem;
+    }
+
+    .word-english {
+        font-size: 1.1rem;
+    }
+}
+
+/* Tone Cards */
+.tone-card {
+    width: 100% !important;  /* Force full width */
+    margin-bottom: 2rem;
+}
+
+.tone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.tone-card .card-main {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.tone-number-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tone-number {
+    font-size: 2.5rem;
+    color: var(--notion-text);
+}
+
+.tone-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.tone-name {
+    font-size: 1.8rem;
+    color: var(--notion-text);
+    font-weight: 500;
+}
+
+.tone-description {
+    font-size: 1.1rem;
+    color: var(--notion-gray);
+} 

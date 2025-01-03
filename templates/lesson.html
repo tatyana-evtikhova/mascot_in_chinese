@@ -1,0 +1,714 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="lesson-container">
+    <header class="lesson-header">
+        <div class="header-content">
+            <div class="title-section">
+                <div class="lesson-info">
+                    <span class="lesson-number">Lesson {{ lesson.id }}</span>
+                    <h1>{{ lesson.title }}</h1>
+                </div>
+                <div class="lesson-progress">
+                    <div class="progress-ring">
+                        <svg width="40" height="40">
+                            <circle class="progress-ring-circle-bg" cx="20" cy="20" r="16"/>
+                            <circle class="progress-ring-circle" cx="20" cy="20" r="16" 
+                                style="stroke-dashoffset: calc(100 - {{ (lesson.id / lessons|length * 100)|round }} * 100 / 100)"/>
+                        </svg>
+                        <span class="progress-text">{{ lesson.id }}/{{ lessons|length }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="lesson-content-wrapper">
+        <!-- Left Column: Main Content -->
+        <div class="lesson-content" id="lessonContent">
+            {% if lesson.content is mapping %}
+                <div class="lecture-container">
+                    {% for stage in lesson.content.stages %}
+                        <div class="lecture-section">
+                            <div class="section-header">
+                                <div class="section-header-content">
+                                    <div class="section-icon">
+                                        {% if stage.type == 'tutorial' %}🎵
+                                        {% elif stage.name == 'Basic Greetings' %}👋
+                                        {% elif stage.name == 'Thank You Power' %}🙏
+                                        {% endif %}
+                                    </div>
+                                    <div class="section-title">
+                                        <h2>{{ stage.name }}</h2>
+                                        <span class="section-subtitle">
+                                            {% if stage.name == 'Tone Training' %}Master the four tones of Mandarin
+                                            {% elif stage.name == 'Basic Greetings' %}Learn essential greetings
+                                            {% elif stage.name == 'Thank You Power' %}Express gratitude in Chinese
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section-content">
+                                {% if stage.type == 'tutorial' and stage.tones %}
+                                    <!-- Tone Training Content -->
+                                    <div class="tone-list">
+                                        {% for tone in stage.tones %}
+                                            <div class="tone-item" style="--tone-color: {{ tone.color }}">
+                                                <div class="tone-content">
+                                                    <div class="tone-header">
+                                                        <div class="tone-number">{{ tone.number }}</div>
+                                                        <div class="tone-name">{{ tone.name }}</div>
+                                                        <div class="tone-pitch-visual">
+                                                            <svg width="60" height="30" viewBox="0 0 60 30">
+                                                                {% if tone.visual_pattern == 'straight' %}
+                                                                    <line x1="5" y1="15" x2="55" y2="15" stroke="currentColor" stroke-width="3"/>
+                                                                {% elif tone.visual_pattern == 'rising' %}
+                                                                    <line x1="5" y1="25" x2="55" y2="5" stroke="currentColor" stroke-width="3"/>
+                                                                {% elif tone.visual_pattern == 'dipping' %}
+                                                                    <path d="M5,15 Q30,25 55,5" stroke="currentColor" fill="none" stroke-width="3"/>
+                                                                {% elif tone.visual_pattern == 'falling' %}
+                                                                    <line x1="5" y1="5" x2="55" y2="25" stroke="currentColor" stroke-width="3"/>
+                                                                {% elif tone.visual_pattern == 'dot' %}
+                                                                    <circle cx="30" cy="15" r="4" fill="currentColor"/>
+                                                                {% endif %}
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tone-description">{{ tone.description }}</div>
+                                                    <div class="tone-example" onclick="speakText('{{ tone.example.char }}')">
+                                                        <div class="example-row">
+                                                            <span class="character">{{ tone.example.char }}</span>
+                                                            <span class="pinyin">{{ tone.example.pinyin }}</span>
+                                                            <span class="meaning">{{ tone.example.meaning }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <!-- Regular Learning Content -->
+                                    <div class="learning-content">
+                                        {{ stage.content | safe }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Sidebar -->
+        <aside class="lesson-sidebar">
+            <!-- Study Tips Section -->
+            <div class="tips-section">
+                <h3><i class="bi bi-lightbulb"></i> Study Tips</h3>
+                {{ lesson.content.tips | safe }}
+            </div>
+
+            <!-- Practice Section -->
+            <div class="practice-section">
+                <h3><i class="bi bi-journal-check"></i> Practice</h3>
+                <div class="practice-buttons">
+                    <div class="practice-btn disabled">
+                        <i class="bi bi-card-text"></i>
+                        Flashcards (Coming Soon)
+                    </div>
+                    <div class="practice-btn test-btn disabled">
+                        <i class="bi bi-journal-check"></i>
+                        Take Test (Coming Soon)
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<style>
+/* Base Layout */
+.lesson-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    position: relative;
+}
+
+/* Floating Progress Bar */
+.lesson-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #f0f0f0;
+    z-index: 1000;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.3s ease;
+}
+
+.lesson-header {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.title-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lesson-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lesson-number {
+    font-size: 0.9rem;
+    color: #4CAF50;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.title-section h1 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Progress Ring */
+.progress-ring {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring-circle-bg {
+    fill: none;
+    stroke: #f0f0f0;
+    stroke-width: 3;
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: #4CAF50;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.35s;
+    stroke-dasharray: 100;
+}
+
+.progress-text {
+    position: absolute;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4CAF50;
+}
+
+/* Content Layout */
+.lesson-content-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 75%) minmax(0, 25%);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.lesson-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    line-height: 1.6;
+    font-size: 1.1rem;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 2rem;
+}
+
+.section-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.section-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+
+.section-title {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 600;
+}
+
+.section-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Tone Training Styles */
+.tone-list {
+    display: grid;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.tone-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-left: 4px solid var(--tone-color);
+}
+
+.tone-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.tone-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.tone-example {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.example-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.character {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    font-family: 'FZKAI', sans-serif;
+}
+
+.example-row .pinyin {
+    font-size: 1.1rem;
+    color: var(--tone-color);
+    font-weight: 500;
+}
+
+.example-row .meaning {
+    color: #666;
+    font-size: 0.95rem;
+    font-style: italic;
+}
+
+/* Learning Section Styles */
+.learning-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.section-intro {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.main-expression {
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.main-expression:hover {
+    background: #f8f9fa;
+}
+
+.expression-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.chinese-text {
+    font-size: 3rem;
+    color: #2c3e50;
+    font-family: 'FZKAI', sans-serif;
+}
+
+.expression-details {
+    display: grid;
+    gap: 0.5rem;
+}
+
+/* Usage Examples */
+.usage-examples {
+    padding: 1.5rem;
+}
+
+.usage-examples h4 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.usage-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.usage-item:hover {
+    transform: translateX(5px);
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Tone Rules */
+.tone-rule {
+    padding: 1.5rem;
+    background: #fff3e0;
+    border-top: 1px solid #ffe0b2;
+}
+
+.rule-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: #f57c00;
+}
+
+.usage-notes {
+    list-style: none;
+    padding-left: 1.5rem;
+}
+
+.usage-notes li {
+    margin-bottom: 0.5rem;
+    color: #666;
+    position: relative;
+}
+
+.usage-notes li::before {
+    content: "•";
+    position: absolute;
+    left: -1rem;
+    color: #f57c00;
+}
+
+/* Sidebar Styles */
+.lesson-sidebar {
+    position: sticky;
+    top: 1rem;
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tips-section, .practice-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tips-section h3, .practice-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+/* Practice Buttons */
+.practice-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.practice-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+}
+
+.practice-btn:hover:not(.disabled) {
+    background: #4CAF50;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.practice-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Notion-like Styles */
+.notion-block {
+    margin: 1rem 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.notion-callout {
+    display: flex;
+    padding: 1rem;
+    border-radius: 4px;
+    background: rgba(235, 236, 237, 0.3);
+    margin: 0.5rem 0;
+}
+
+.notion-callout.warning {
+    background: rgba(255, 246, 237, 0.3);
+}
+
+.notion-content {
+    flex: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .lesson-content-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .lesson-sidebar {
+        position: static;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .lesson-container {
+        padding: 1rem;
+    }
+
+    .lesson-header {
+        padding: 1.5rem;
+    }
+
+    .title-section h1 {
+        font-size: 1.5rem;
+    }
+
+    .main-expression {
+        padding: 1.5rem;
+    }
+
+    .chinese-text {
+        font-size: 2.5rem;
+    }
+
+    .tone-item {
+        padding: 1rem;
+    }
+
+    .example-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+</style>
+
+<script>
+// Speech synthesis management
+let isSpeaking = false;
+const speechQueue = [];
+
+function speakText(text) {
+    // Stop event propagation to prevent parent handlers from firing
+    event.stopPropagation();
+    
+    if (isSpeaking) {
+        speechSynthesis.cancel();
+    }
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    
+    // Visual feedback for the clicked element
+    const element = event.currentTarget;
+    if (element) {
+        // Add ripple effect
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        element.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 1000);
+    }
+    
+    utterance.onstart = () => {
+        isSpeaking = true;
+        if (element) {
+            element.classList.add('speaking');
+        }
+    };
+    
+    utterance.onend = () => {
+        isSpeaking = false;
+        if (element) {
+            element.classList.remove('speaking');
+        }
+    };
+    
+    speechSynthesis.speak(utterance);
+}
+
+// Initialize speech synthesis
+document.addEventListener('DOMContentLoaded', () => {
+    // Reset speech synthesis state on page load
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    
+    // Make Chinese text clickable
+    const chineseRegex = /[\u4e00-\u9fa5]+/g;
+    document.querySelectorAll('.lesson-content p, .example-chip, .main-example').forEach(element => {
+        if (element.innerHTML.match(chineseRegex)) {
+            element.innerHTML = element.innerHTML.replace(chineseRegex, match => 
+                `<span class="chinese-text" onclick="speakText('${match}')">${match}</span>`
+            );
+        }
+    });
+});
+
+// Navigation System
+document.addEventListener('DOMContentLoaded', () => {
+    const progressSteps = document.querySelectorAll('.progress-step');
+    const sections = document.querySelectorAll('.lesson-stage');
+    let currentSection = 0;
+
+    // Create section indicators
+    const indicators = document.createElement('div');
+    indicators.className = 'section-indicator';
+    sections.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = 'indicator-dot';
+        dot.addEventListener('click', () => scrollToSection(index));
+        indicators.appendChild(dot);
+    });
+    document.body.appendChild(indicators);
+
+    function updateProgress() {
+        const scrollPosition = window.scrollY;
+        
+        sections.forEach((section, index) => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= 150 && rect.bottom >= 150) {
+                currentSection = index;
+                updateActiveStates();
+            }
+        });
+    }
+
+    function updateActiveStates() {
+        progressSteps.forEach((step, index) => {
+            if (index <= currentSection) {
+                step.classList.add('completed');
+            } else {
+                step.classList.remove('completed');
+            }
+            step.classList.toggle('active', index === currentSection);
+        });
+
+        document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSection);
+        });
+    }
+
+    function scrollToSection(index) {
+        sections[index].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    progressSteps.forEach((step, index) => {
+        step.addEventListener('click', () => scrollToSection(index));
+    });
+
+    window.addEventListener('scroll', updateProgress);
+    updateProgress(); // Initial state
+});
+</script>
+{% endblock %} 
