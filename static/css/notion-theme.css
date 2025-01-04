@@ -1,0 +1,236 @@
+:root {
+    /* Base Colors */
+    --notion-white: #ffffff;
+    --notion-red: #e60012;  /* Main accent color */
+    --notion-red-light: rgba(230, 0, 18, 0.1);
+    --notion-red-hover: rgba(230, 0, 18, 0.05);
+    
+    /* Text Colors */
+    --notion-text-default: #37352f;
+    --notion-text-gray: #787774;
+    --notion-text-light: #a3a29e;
+    
+    /* Background Colors */
+    --notion-bg-default: #ffffff;
+    --notion-bg-gray: #f7f6f3;
+    --notion-bg-hover: #efefef;
+    
+    /* Border & Shadow */
+    --notion-border: rgba(55, 53, 47, 0.09);
+    --notion-shadow: rgba(15, 15, 15, 0.05);
+    
+    /* Interactive States */
+    --notion-hover-bg: rgba(55, 53, 47, 0.08);
+    --notion-click-bg: rgba(55, 53, 47, 0.16);
+    
+    /* Status Colors */
+    --notion-success: #2ecc71;
+    --notion-warning: #f1c40f;
+    --notion-error: #e74c3c;
+}
+
+/* Global Notion-like Styles */
+body {
+    color: var(--notion-text-default);
+    background: var(--notion-bg-default);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Notion-like Components */
+.notion-block {
+    background: var(--notion-white);
+    border: 1px solid var(--notion-border);
+    border-radius: 3px;
+    transition: background 0.1s ease-in, box-shadow 0.1s ease-in;
+}
+
+.notion-block:hover {
+    background: var(--notion-bg-gray);
+}
+
+.notion-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--notion-white);
+    border: 1px solid var(--notion-border);
+    border-radius: 3px;
+    color: var(--notion-text-default);
+    font-size: 14px;
+    transition: background 0.1s ease-in;
+}
+
+.notion-button:hover {
+    background: var(--notion-bg-hover);
+}
+
+.notion-button.primary {
+    background: var(--notion-red);
+    color: var(--notion-white);
+    border: none;
+}
+
+.notion-button.primary:hover {
+    background: rgba(230, 0, 18, 0.9);
+}
+
+/* Form Elements */
+.notion-input {
+    width: 100%;
+    padding: 6px 12px;
+    background: var(--notion-white);
+    border: 1px solid var(--notion-border);
+    border-radius: 3px;
+    color: var(--notion-text-default);
+    font-size: 14px;
+    transition: border 0.1s ease-in;
+}
+
+.notion-input:focus {
+    border-color: var(--notion-red);
+    outline: none;
+}
+
+/* Navigation */
+.notion-nav {
+    background: var(--notion-white);
+    border-bottom: 1px solid var(--notion-border);
+}
+
+.notion-nav-item {
+    color: var(--notion-text-default);
+    padding: 8px 12px;
+    border-radius: 3px;
+    transition: background 0.1s ease-in;
+}
+
+.notion-nav-item:hover {
+    background: var(--notion-bg-hover);
+}
+
+.notion-nav-item.active {
+    background: var(--notion-red-light);
+    color: var(--notion-red);
+}
+
+/* Cards */
+.notion-card {
+    background: var(--notion-white);
+    border: 1px solid var(--notion-border);
+    border-radius: 3px;
+    padding: 16px;
+    transition: background 0.1s ease-in;
+}
+
+.notion-card:hover {
+    background: var(--notion-bg-gray);
+}
+
+/* Typography */
+.notion-title {
+    font-weight: 600;
+    color: var(--notion-text-default);
+    margin-bottom: 0.5em;
+}
+
+.notion-text {
+    color: var(--notion-text-default);
+}
+
+.notion-caption {
+    color: var(--notion-text-gray);
+    font-size: 14px;
+}
+
+/* Icons */
+.notion-icon {
+    color: var(--notion-text-gray);
+    transition: color 0.1s ease-in;
+}
+
+.notion-icon:hover {
+    color: var(--notion-red);
+}
+
+/* Badges */
+.notion-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    background: var(--notion-bg-gray);
+    color: var(--notion-text-gray);
+}
+
+.notion-badge.active {
+    background: var(--notion-red-light);
+    color: var(--notion-red);
+}
+
+/* Study Tips */
+.study-tips {
+    background: var(--notion-bg-gray);
+    border-radius: 4px;
+    padding: 16px;
+    width: 100%;
+}
+
+.study-tips .section-title {
+    margin-bottom: 16px;
+}
+
+.study-tips .title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--notion-text-default);
+}
+
+.study-tips .icon {
+    font-size: 1.2rem;
+}
+
+.tip-block {
+    margin-bottom: 16px;
+}
+
+.tip-block:last-child {
+    margin-bottom: 0;
+}
+
+.tip-block h4 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--notion-text-default);
+    margin-bottom: 4px;
+}
+
+.tip-block p {
+    color: var(--notion-text-gray);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Warning variant */
+.study-tips.warning {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.study-tips.warning h4 {
+    color: #c0392b;
+}
+
+.study-tips.warning p {
+    color: #7f8c8d;
+}
+
+/* Mistakes Section */
+.mistakes-section {
+    margin-top: 24px;
+} 

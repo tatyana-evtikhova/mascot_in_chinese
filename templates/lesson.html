@@ -5,19 +5,21 @@
     <header class="lesson-header">
         <div class="header-content">
             <div class="title-section">
+                {% if lesson.icon %}
+                <div class="lesson-icon">
+                    <img src="{{ lesson.icon }}" alt="{{ lesson.title }} icon">
+                    {% if lesson.icon_credit %}
+                    <div class="icon-credit">
+                        <a href="{{ lesson.icon_credit.url }}" target="_blank" rel="noopener noreferrer">
+                            {{ lesson.icon_credit.text }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
                 <div class="lesson-info">
                     <span class="lesson-number">Lesson {{ lesson.id }}</span>
                     <h1>{{ lesson.title }}</h1>
-                </div>
-                <div class="lesson-progress">
-                    <div class="progress-ring">
-                        <svg width="40" height="40">
-                            <circle class="progress-ring-circle-bg" cx="20" cy="20" r="16"/>
-                            <circle class="progress-ring-circle" cx="20" cy="20" r="16" 
-                                style="stroke-dashoffset: calc(100 - {{ (lesson.id / lessons|length * 100)|round }} * 100 / 100)"/>
-                        </svg>
-                        <span class="progress-text">{{ lesson.id }}/{{ lessons|length }}</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -33,18 +35,12 @@
                             <div class="section-header">
                                 <div class="section-header-content">
                                     <div class="section-icon">
-                                        {% if stage.type == 'tutorial' %}🎵
-                                        {% elif stage.name == 'Basic Greetings' %}👋
-                                        {% elif stage.name == 'Thank You Power' %}🙏
-                                        {% endif %}
+                                        {{ stage.icon if stage.icon else '📝' }}
                                     </div>
                                     <div class="section-title">
                                         <h2>{{ stage.name }}</h2>
                                         <span class="section-subtitle">
-                                            {% if stage.name == 'Tone Training' %}Master the four tones of Mandarin
-                                            {% elif stage.name == 'Basic Greetings' %}Learn essential greetings
-                                            {% elif stage.name == 'Thank You Power' %}Express gratitude in Chinese
-                                            {% endif %}
+                                            {{ stage.subtitle if stage.subtitle else '' }}
                                         </span>
                                     </div>
                                 </div>
@@ -104,10 +100,14 @@
         <!-- Right Column: Sidebar -->
         <aside class="lesson-sidebar">
             <!-- Study Tips Section -->
-            <div class="tips-section">
-                <h3><i class="bi bi-lightbulb"></i> Study Tips</h3>
-                {{ lesson.content.tips | safe }}
+            {{ lesson.content.tips | safe }}
+
+            <!-- Mistakes Section -->
+            {% if lesson.content.mistakes %}
+            <div class="mistakes-section">
+                {{ lesson.content.mistakes | safe }}
             </div>
+            {% endif %}
 
             <!-- Practice Section -->
             <div class="practice-section">
@@ -125,12 +125,28 @@
             </div>
         </aside>
     </div>
+
+    <!-- Navigation -->
+    <div class="lesson-navigation">
+        {% if lesson.id > 1 %}
+        <a href="{{ url_for('lesson', lesson_id=lesson.id-1) }}" class="nav-btn prev-btn notion-button">
+            <span class="nav-icon">←</span>
+            <span class="nav-text">Previous Lesson</span>
+        </a>
+        {% endif %}
+        {% if lesson.id < lessons|length %}
+        <a href="{{ url_for('lesson', lesson_id=lesson.id+1) }}" class="nav-btn next-btn notion-button primary" title="Next: {{ lessons[lesson.id].title }}">
+            <span class="nav-text">Next Lesson</span>
+            <span class="nav-icon">→</span>
+        </a>
+        {% endif %}
+    </div>
 </div>
 
 <style>
 /* Base Layout */
 .lesson-container {
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 1rem;
     position: relative;
@@ -155,15 +171,19 @@
 
 .lesson-header {
     background: white;
-    padding: 1.5rem;
+    padding: 1.5rem 2rem;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .header-content {
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 .title-section {
@@ -184,51 +204,42 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    display: inline-block;
+    width: fit-content;
 }
 
 .title-section h1 {
     font-size: 2rem;
     color: #2c3e50;
     margin: 0;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1.2;
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-/* Progress Ring */
-.progress-ring {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.progress-ring-circle-bg {
-    fill: none;
-    stroke: #f0f0f0;
-    stroke-width: 3;
-}
-
-.progress-ring-circle {
-    fill: none;
-    stroke: #4CAF50;
-    stroke-width: 3;
-    stroke-linecap: round;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-    transition: stroke-dashoffset 0.35s;
-    stroke-dasharray: 100;
-}
-
-.progress-text {
+/* Add decorative background pattern */
+.lesson-header::before {
+    content: '';
     position: absolute;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #4CAF50;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(45deg, rgba(76, 175, 80, 0.05), rgba(76, 175, 80, 0.1));
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    z-index: 0;
 }
 
 /* Content Layout */
 .lesson-content-wrapper {
     display: grid;
-    grid-template-columns: minmax(0, 75%) minmax(0, 25%);
+    grid-template-columns: minmax(0, 80%) minmax(0, 20%);
     gap: 1.5rem;
     align-items: start;
 }
@@ -293,16 +304,16 @@
 /* Tone Training Styles */
 .tone-list {
     display: grid;
-    gap: 1.5rem;
-    margin: 1.5rem 0;
+    gap: 1rem;
+    margin: 1rem 0;
 }
 
 .tone-item {
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: 1rem;
     background: white;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
     position: relative;
@@ -312,48 +323,65 @@
 
 .tone-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .tone-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    margin-bottom: 1rem;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #eee;
 }
 
+.tone-number {
+    font-size: 1.8rem;
+    color: var(--tone-color);
+}
+
+.tone-name {
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+.tone-description {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
 .tone-example {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #eee;
-    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .example-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 .character {
-    font-size: 2.5rem;
+    font-size: 2rem;
     color: #2c3e50;
-    font-family: 'FZKAI', sans-serif;
 }
 
 .example-row .pinyin {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--tone-color);
     font-weight: 500;
 }
 
 .example-row .meaning {
     color: #666;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-style: italic;
 }
 
@@ -588,6 +616,140 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+    }
+}
+
+/* Add hover effects */
+.tone-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tone-example:hover {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.lesson-icon {
+    margin-right: 1rem;
+}
+
+.lesson-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.icon-credit {
+    font-size: 0.7rem;
+    color: var(--notion-text-gray);
+    margin-top: 0.25rem;
+}
+
+.icon-credit a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.icon-credit a:hover {
+    text-decoration: underline;
+}
+
+/* Navigation Buttons */
+.lesson-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        rgba(196, 30, 58, 0.05), 
+        rgba(245, 193, 66, 0.05));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.nav-btn:hover::before {
+    opacity: 1;
+}
+
+.nav-text {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-icon {
+    position: relative;
+    z-index: 1;
+    font-size: 1.2rem;
+    transition: transform 0.2s ease;
+}
+
+.prev-btn {
+    color: var(--notion-text-default);
+    border: 1px solid var(--notion-border);
+    background: var(--notion-white);
+}
+
+.prev-btn:hover {
+    border-color: var(--notion-red);
+}
+
+.prev-btn:hover .nav-icon {
+    transform: translateX(-4px);
+}
+
+.next-btn {
+    background: var(--notion-red);
+    color: var(--notion-white);
+}
+
+.next-btn:hover {
+    background: #b01b34;  /* Darker red on hover */
+}
+
+.next-btn:hover .nav-icon {
+    transform: translateX(4px);
+}
+
+/* Focus styles for accessibility */
+.nav-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .lesson-navigation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .nav-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 </style>

@@ -1,0 +1,27 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center;">
+    <div style="font-size: 48px; margin: 20px 0;">{{ achievement.icon }}</div>
+    <h2 style="color: #e60012; margin: 0;">Congratulations!</h2>
+    <p style="font-size: 1.2em; margin: 10px 0;">You've earned a new achievement</p>
+</div>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+    <h3 style="margin: 0; color: #2c3e50;">{{ achievement.name }}</h3>
+    <p style="margin: 10px 0; color: #666;">{{ achievement.description }}</p>
+</div>
+
+<div style="margin-top: 20px;">
+    <p>Keep up the great work! Here's what you can do next:</p>
+    <ul style="padding-left: 20px;">
+        {% for next_step in next_steps %}
+        <li style="margin-bottom: 10px;">{{ next_step }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{{ url_for('user_dashboard', _external=True) }}" class="button">View All Achievements</a>
+</div>
+{% endblock %} 

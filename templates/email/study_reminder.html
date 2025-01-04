@@ -1,0 +1,32 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<h2>Time for Your Daily Chinese Practice!</h2>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #e60012;">Today's Overview:</h3>
+    <ul style="margin: 0; padding-left: 20px;">
+        <li style="margin-bottom: 10px;">Current streak: {{ streak_days }} days</li>
+        <li style="margin-bottom: 10px;">Daily goal: {{ user.daily_goal }} minutes</li>
+        <li style="margin-bottom: 10px;">Progress: {{ progress_percentage }}% complete</li>
+    </ul>
+</div>
+
+{% if recommended_lesson %}
+<div style="margin: 20px 0;">
+    <p><strong>Recommended Next Lesson:</strong></p>
+    <div style="background-color: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px;">
+        <h4 style="margin: 0; color: #2c3e50;">{{ recommended_lesson.title_cn }}</h4>
+        <p style="margin: 5px 0; color: #666;">{{ recommended_lesson.title_en }}</p>
+    </div>
+</div>
+{% endif %}
+
+<div style="text-align: center;">
+    <a href="{{ url_for('lesson_map', _external=True) }}" class="button">Continue Learning</a>
+</div>
+
+<p style="font-size: 0.9em; color: #666; margin-top: 20px; text-align: center;">
+    You can adjust your reminder settings in your <a href="{{ url_for('user_profile', _external=True) }}" style="color: #e60012;">profile settings</a>.
+</p>
+{% endblock %} 

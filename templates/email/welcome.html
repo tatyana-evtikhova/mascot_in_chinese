@@ -1,0 +1,29 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<h2>Welcome to Your Chinese Learning Journey!</h2>
+<p>Hi {{ user.username }},</p>
+
+<p>We're excited to have you join Mascot in Chinese! Here's what you can do to get started:</p>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #e60012;">Quick Start Guide:</h3>
+    <ol style="margin: 0; padding-left: 20px;">
+        <li style="margin-bottom: 10px;">Complete your first lesson in Basic Greetings</li>
+        <li style="margin-bottom: 10px;">Set your daily study goal in your profile settings</li>
+        <li style="margin-bottom: 10px;">Check out the lesson map to plan your learning path</li>
+    </ol>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ url_for('lesson_map', _external=True) }}" class="button">Start Learning</a>
+</div>
+
+<div style="margin-top: 30px;">
+    <p><strong>Need help?</strong> Here are some useful links:</p>
+    <ul style="padding-left: 20px;">
+        <li><a href="{{ url_for('user_dashboard', _external=True) }}" style="color: #e60012;">Your Dashboard</a></li>
+        <li><a href="{{ url_for('user_profile', _external=True) }}" style="color: #e60012;">Profile Settings</a></li>
+    </ul>
+</div>
+{% endblock %} 

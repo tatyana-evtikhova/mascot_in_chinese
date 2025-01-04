@@ -1,0 +1,22 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<h2>Welcome to Mascot in Chinese!</h2>
+<p>Thank you for registering. To complete your registration and start learning Chinese, please verify your email address.</p>
+
+<div style="text-align: center;">
+    <a href="{{ verify_url }}" class="button">Verify Email Address</a>
+</div>
+
+<p style="margin-top: 20px;">
+    If the button above doesn't work, copy and paste this link into your browser:
+    <br>
+    <span style="color: #666; word-break: break-all;">{{ verify_url }}</span>
+</p>
+
+<div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+    <p style="margin: 0; font-size: 14px;">
+        <strong>Note:</strong> This verification link will expire in 24 hours.
+    </p>
+</div>
+{% endblock %} 
