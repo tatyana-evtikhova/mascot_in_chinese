@@ -139,7 +139,7 @@ changing a tone in Chinese changes the meaning of the word.
             {
                 'name': 'Basic Greetings',
                 'type': 'learning',
-    'content': '''
+                'content': '''
                 <div class="learning-section">
                     <!-- General Greeting -->
 
@@ -152,7 +152,6 @@ changing a tone in Chinese changes the meaning of the word.
                                 <div class="meaning">Hello (General greeting)</div>
                             </div>
                         </div>
-                        <div class="play-hint">Click to hear pronunciation</div>
                     </div>
 
                     <!-- 2. 早上好 -->
@@ -259,7 +258,6 @@ changing a tone in Chinese changes the meaning of the word.
                                 <div class="meaning">Thank you (Basic/Common)</div>
                             </div>
                         </div>
-                        <div class="play-hint">Click to hear pronunciation</div>
                     </div>
 
                     <!-- 2. Polite Thank You -->
@@ -362,64 +360,56 @@ changing a tone in Chinese changes the meaning of the word.
             }
         ],
         'tips': '''
-        <div class="notion-block">
-            <div class="notion-callout">
-                <div class="notion-content">
-                    <div class="notion-list">
-                    <ul class="study-tips">
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Tone Practice</h4>
-                                <p>Start with individual tones, then practice tone pairs. Record yourself and compare with native speakers.</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Formality Levels</h4>
-                                <p>Use 您好 (nín hǎo) with teachers, elders, and in formal situations. Use 你好 (nǐ hǎo) with friends and peers.</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Daily Practice</h4>
-                                <p>Practice greetings in different contexts: morning (早上好), afternoon (下午好), evening (晚上好).</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Pronunciation Tips</h4>
-                                <p>Listen carefully to tone changes in combinations. Pay attention to neutral tones in words like 谢谢 (xiè xie).</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Learning Method</h4>
-                                <p>Learn phrases in context rather than isolated words. Practice with complete sentences.</p>
-                            </div>
-                        </li>
-                    </ul>
+            <div class="study-tips">
+                <div class="section-title">
+                    <div class="title-with-icon">
+                        <span class="icon">💡</span>
+                        <span>Study Tips</span>
                     </div>
                 </div>
+                <div class="tip-block">
+                    <h4>Listen Carefully</h4>
+                    <p>Pay attention to native speakers' tone patterns and try to mimic them</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Practice Daily</h4>
+                    <p>Spend a few minutes each day practicing the tones with simple words</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Record Yourself</h4>
+                    <p>Compare your pronunciation with native speakers to improve accuracy</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Start Simple</h4>
+                    <p>Master single-syllable words before moving on to longer phrases</p>
+                </div>
             </div>
-        </div>
         ''',
         'mistakes': '''
-        <div class="notion-block">
-            <div class="notion-callout warning">
-                <div class="notion-icon">⚠️</div>
-                <div class="notion-content">
-                    <div class="notion-title">Common Mistakes to Avoid</div>
-                    <div class="notion-list">
-                    <ul class="common-mistakes">
-                        <li>Watch out for wrong tones</li>
-                        <li>Be careful with casual greetings in formal situations</li>
-                        <li>Remember to add 你 after 谢谢 when appropriate</li>
-                        <li>Use the appropriate formality level</li>
-                    </ul>
-                    </div>
+            <div class="study-tips warning">
+                <div class="tip-block">
+                    <h4>Tone Consistency</h4>
+                    <p>Don't change tones randomly - each character has a specific tone</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Third Tone</h4>
+                    <p>Make sure to dip down before rising in third tone words</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Neutral Tone</h4>
+                    <p>Don't stress neutral tone syllables too much</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Tone Changes</h4>
+                    <p>Watch out for tone changes in combinations (like 不 and 一)</p>
                 </div>
             </div>
-        </div>
         '''
     }
 }

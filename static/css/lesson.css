@@ -864,4 +864,15 @@ body {
 .tone-description {
     font-size: 1.1rem;
     color: var(--notion-gray);
+}
+
+/* Remove hover icon and add pointer cursor */
+.chinese-text:hover::after,
+.usage-chinese:hover::after {
+    display: none !important;
+}
+
+.chinese-text,
+.usage-chinese {
+    cursor: pointer;
 } 

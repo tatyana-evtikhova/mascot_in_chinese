@@ -113,10 +113,10 @@
             <div class="practice-section">
                 <h3><i class="bi bi-journal-check"></i> Practice</h3>
                 <div class="practice-buttons">
-                    <div class="practice-btn disabled">
+                    <a href="{{ url_for('flashcards', lesson_id=lesson.id) }}" class="practice-btn">
                         <i class="bi bi-card-text"></i>
-                        Flashcards (Coming Soon)
-                    </div>
+                        Flashcards
+                    </a>
                     <div class="practice-btn test-btn disabled">
                         <i class="bi bi-journal-check"></i>
                         Take Test (Coming Soon)
@@ -140,6 +140,12 @@
             <span class="nav-icon">→</span>
         </a>
         {% endif %}
+    </div>
+
+    <div class="lesson-actions">
+        <a href="{{ url_for('take_test', lesson_id=lesson.id) }}" class="test-btn">
+            Take Test
+        </a>
     </div>
 </div>
 

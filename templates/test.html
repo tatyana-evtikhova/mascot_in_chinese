@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="test-container">
+    <div class="test-header">
+        <h1>Lesson {{ lesson_id }} Test</h1>
+        <p>Answer the following questions to test your knowledge.</p>
+    </div>
+
+    <form id="testForm" class="test-form">
+        {% for question in questions %}
+        <div class="question-card">
+            <h3>Question {{ loop.index }}</h3>
+            <p class="question-text">{{ question.text }}</p>
+            <div class="options">
+                {% for option in question.options %}
+                <div class="option">
+                    <input type="radio" 
+                           name="q{{ loop.parent.index0 }}" 
+                           id="q{{ loop.parent.index0 }}o{{ loop.index0 }}"
+                           value="{{ loop.index0 }}">
+                    <label for="q{{ loop.parent.index0 }}o{{ loop.index0 }}">{{ option }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="submit-btn">Submit Test</button>
+    </form>
+
+    <div id="results" class="results-card" style="display: none;">
+        <h2>Test Results</h2>
+        <div class="score-display">
+            <div class="score-circle">
+                <span class="score-number">0%</span>
+            </div>
+        </div>
+        <p class="score-message"></p>
+        <div class="action-buttons">
+            <button onclick="location.reload()" class="retry-btn">Try Again</button>
+            <button onclick="location.href='/lesson-map'" class="continue-btn">Continue Learning</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('testForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const answers = [];
+    const questions = {{ questions|length }};
+    
+    for (let i = 0; i < questions; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        answers.push(selected ? parseInt(selected.value) : -1);
+    }
+    
+    try {
+        const response = await fetch('/api/submit-test', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                lesson_id: {{ lesson_id }},
+                answers: answers
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Show results
+        document.getElementById('testForm').style.display = 'none';
+        const results = document.getElementById('results');
+        results.style.display = 'block';
+        
+        // Update score display
+        results.querySelector('.score-number').textContent = `${Math.round(data.score)}%`;
+        
+        // Update message
+        const message = results.querySelector('.score-message');
+        if (data.score >= 80) {
+            message.textContent = 'Congratulations! You passed the test!';
+            message.className = 'score-message pass';
+        } else {
+            message.textContent = 'Keep practicing! Try again to improve your score.';
+            message.className = 'score-message retry';
+        }
+        
+    } catch (error) {
+        console.error('Error submitting test:', error);
+        alert('There was an error submitting your test. Please try again.');
+    }
+});
+</script>
+{% endblock %} 

@@ -3,8 +3,8 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Login</h2>
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <h2>Sign In</h2>
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form" id="loginForm">
             {{ form.csrf_token }}
             <div class="form-group">
                 <label for="email">Email</label>
@@ -33,13 +33,95 @@
                 {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <button type="submit" class="btn btn-primary w-100">Sign In</button>
         </form>
 
         <div class="auth-footer">
-            <p><a href="{{ url_for('forgot_password') }}">Forgot Password?</a></p>
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
         </div>
     </div>
 </div>
+
+<style>
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.password-input {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.auth-footer p {
+    margin: 0;
+    color: #666;
+}
+
+.auth-footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordInput = document.querySelector('#password');
+
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    }
+});
+</script>
 {% endblock %} 

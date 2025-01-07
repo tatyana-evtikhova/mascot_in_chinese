@@ -177,58 +177,56 @@ lesson = {
             }
         ],
         'tips': '''
-        <div class="notion-block">
-            <div class="notion-callout">
-                <div class="notion-content">
-                    <div class="notion-list">
-                    <ul class="study-tips">
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Writing Practice</h4>
-                                <p>Practice writing numbers in the correct stroke order, starting with simple ones (一, 二, 三)</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Counting Practice</h4>
-                                <p>Count objects around you in Chinese to reinforce number usage</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Measure Words</h4>
-                                <p>Learn common measure words used with numbers (个, 本, 张)</p>
-                            </div>
-                        </li>
-                        <li class="tip-item">
-                            <div class="tip-content">
-                                <h4>Tone Practice</h4>
-                                <p>Pay attention to tone changes, especially with 一 (yī)</p>
-                            </div>
-                        </li>
-                    </ul>
+            <div class="study-tips">
+                <div class="section-title">
+                    <div class="title-with-icon">
+                        <span class="icon">💡</span>
+                        <span>Study Tips</span>
                     </div>
                 </div>
+                <div class="tip-block">
+                    <h4>Counting Practice</h4>
+                    <p>Practice counting objects using proper measure words</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Number Combinations</h4>
+                    <p>Learn how numbers combine to form larger numbers</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Real-world Usage</h4>
+                    <p>Practice with prices, phone numbers, and dates</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Writing Practice</h4>
+                    <p>Practice writing numbers following correct stroke order</p>
+                </div>
             </div>
-        </div>
         ''',
         'mistakes': '''
-        <div class="notion-block">
-            <div class="notion-callout warning">
-                <div class="notion-icon">⚠️</div>
-                <div class="notion-content">
-                    <div class="notion-title">Common Mistakes to Avoid</div>
-                    <div class="notion-list">
-                    <ul class="common-mistakes">
-                        <li>Don't forget to use 两 (liǎng) instead of 二 (èr) when counting objects</li>
-                        <li>Watch out for tone changes with 一 (yī)</li>
-                        <li>Remember to use measure words with numbers</li>
-                        <li>Pay attention to stroke order when writing numbers</li>
-                    </ul>
-                    </div>
+            <div class="study-tips warning">
+                <div class="tip-block">
+                    <h4>Number Choice</h4>
+                    <p>Don't forget to use 两 (liǎng) instead of 二 (èr) when counting objects</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Tone Changes</h4>
+                    <p>Watch out for tone changes with 一 (yī)</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Measure Words</h4>
+                    <p>Remember to use measure words with numbers</p>
+                </div>
+
+                <div class="tip-block">
+                    <h4>Writing Order</h4>
+                    <p>Pay attention to stroke order when writing numbers</p>
                 </div>
             </div>
-        </div>
         '''
     }
 } 

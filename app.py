@@ -11,6 +11,12 @@ from flask import abort
 from datetime import datetime
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
+from importlib import import_module
+from lessons import (
+    lesson1, lesson2, lesson3, lesson4, lesson5,
+    lesson6, lesson7, lesson8, lesson9
+)
+from tests import lesson1_test  # Add at the top with other imports
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chinese_lessons.db'
@@ -99,22 +105,56 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route('/')
+def index():
+    return redirect(url_for('lesson_map'))
+
+@app.route('/lesson-map')
 def lesson_map():
     return render_template('lesson_map.html')
 
 @app.route('/api/lessons')
 def get_lessons():
+    # Get current user (if logged in)
+    is_admin = current_user.is_authenticated and current_user.is_admin if current_user else False
+    
     lessons = Lesson.query.all()
-    return jsonify([{
-        'id': lesson.id,
-        'title': f"{lesson.title_cn}\n{lesson.title_en}",
-        'position': {
-            'x': lesson.position_x,
-            'y': lesson.position_y
-        },
-        'prerequisites': [int(x) for x in lesson.prerequisites.split(',') if x],
-        'is_active': lesson.is_active
-    } for lesson in lessons])
+    lesson_list = []
+    
+    for lesson in lessons:
+        # For admin users, all lessons are active
+        if is_admin:
+            is_active = True
+        else:
+            # For non-admin users and non-logged in users:
+            # First lesson is always active
+            # Other lessons are active only if prerequisites are completed
+            if lesson.id == 1:
+                is_active = True
+            else:
+                is_active = False
+                # Check prerequisites only for logged-in users
+                if current_user.is_authenticated:
+                    prerequisites = [int(x) for x in lesson.prerequisites.split(',') if x]
+                    if prerequisites:
+                        completed_prereqs = UserProgress.query.filter(
+                            UserProgress.user_id == current_user.id,
+                            UserProgress.lesson_id.in_(prerequisites),
+                            UserProgress.status == 'completed'
+                        ).count()
+                        is_active = completed_prereqs == len(prerequisites)
+
+        lesson_list.append({
+            'id': lesson.id,
+            'title': f"{lesson.title_cn}\n{lesson.title_en}",
+            'position': {
+                'x': lesson.position_x,
+                'y': lesson.position_y
+            },
+            'prerequisites': [int(x) for x in lesson.prerequisites.split(',') if x],
+            'is_active': is_active
+        })
+    
+    return jsonify(lesson_list)
 
 @app.route('/api/progress/<int:user_id>')
 def get_progress(user_id):
@@ -199,76 +239,115 @@ def init_db():
             db.session.rollback()
             print(f"Error creating users: {e}")
 
-        if not Lesson.query.first():
-            sample_lessons = [
-                Lesson(
-                    title_cn="基础问候",
-                    title_en="Basic Greetings",
-                    position_x=20,
-                    position_y=30,
-                    prerequisites="",
-                    is_active=True
-                ),
-                Lesson(
-                    title_cn="数字 1-10",
-                    title_en="Numbers 1-10",
-                    position_x=40,
-                    position_y=25,
-                    prerequisites="1",
-                    is_active=False
-                ),
-                Lesson(
-                    title_cn="家庭成员",
-                    title_en="Family Members",
-                    position_x=60,
-                    position_y=35,
-                    prerequisites="1",
-                    is_active=False
-                ),
-                Lesson(
-                    title_cn="颜色",
-                    title_en="Colors",
-                    position_x=35,
-                    position_y=50,
-                    prerequisites="1",
-                    is_active=False
-                ),
-                Lesson(
-                    title_cn="数字 11-100",
-                    title_en="Numbers 11-100",
-                    position_x=55,
-                    position_y=45,
-                    prerequisites="2",
-                    is_active=False
-                ),
-                Lesson(
-                    title_cn="日期和时间",
-                    title_en="Date & Time",
-                    position_x=75,
-                    position_y=50,
-                    prerequisites="2,5",
-                    is_active=False
-                ),
-                Lesson(
-                    title_cn="食物",
-                    title_en="Food",
-                    position_x=45,
-                    position_y=65,
-                    prerequisites="1,4",
-                    is_active=False
-                ),
-                Lesson(
-                    title_cn="购物",
-                    title_en="Shopping",
-                    position_x=65,
-                    position_y=70,
-                    prerequisites="5,7",
-                    is_active=False
-                ),
-            ]
-            for lesson in sample_lessons:
+        # Initialize lessons
+        lessons = [
+            {
+                'id': 1,
+                'title_cn': '声调和基本问候语',
+                'title_en': 'Tones, Greetings and Basic Expressions',
+                'position_x': 20,
+                'position_y': 30,
+                'prerequisites': '',
+                'is_active': True
+            },
+            {
+                'id': 2,
+                'title_cn': '数字 1-10',
+                'title_en': 'Numbers 1-10',
+                'position_x': 40,
+                'position_y': 25,
+                'prerequisites': '1',
+                'is_active': False
+            },
+            {
+                'id': 3,
+                'title_cn': '家庭成员',
+                'title_en': 'Family Members',
+                'position_x': 60,
+                'position_y': 35,
+                'prerequisites': '1',
+                'is_active': False
+            },
+            {
+                'id': 4,
+                'title_cn': '时间和日期',
+                'title_en': 'Time and Dates',
+                'position_x': 35,
+                'position_y': 50,
+                'prerequisites': '1',
+                'is_active': False
+            },
+            {
+                'id': 5,
+                'title_cn': '食物和饮料',
+                'title_en': 'Food and Drinks',
+                'position_x': 55,
+                'position_y': 45,
+                'prerequisites': '2',
+                'is_active': False
+            },
+            {
+                'id': 6,
+                'title_cn': '动作动词',
+                'title_en': 'Action Verbs',
+                'position_x': 75,
+                'position_y': 50,
+                'prerequisites': '2,5',
+                'is_active': False
+            },
+            {
+                'id': 7,
+                'title_cn': '位置词',
+                'title_en': 'Location Words',
+                'position_x': 45,
+                'position_y': 65,
+                'prerequisites': '1,4',
+                'is_active': False
+            },
+            {
+                'id': 8,
+                'title_cn': '基本形容词',
+                'title_en': 'Basic Adjectives',
+                'position_x': 65,
+                'position_y': 70,
+                'prerequisites': '5,7',
+                'is_active': False
+            },
+            {
+                'id': 9,
+                'title_cn': '颜色和描述',
+                'title_en': 'Colors and Descriptions',
+                'position_x': 85,
+                'position_y': 75,
+                'prerequisites': '8',
+                'is_active': False
+            }
+        ]
+
+        # Add or update lessons
+        for lesson_data in lessons:
+            lesson = Lesson.query.get(lesson_data['id'])
+            if lesson is None:
+                lesson = Lesson(
+                    id=lesson_data['id'],
+                    title_cn=lesson_data['title_cn'],
+                    title_en=lesson_data['title_en'],
+                    position_x=lesson_data['position_x'],
+                    position_y=lesson_data['position_y'],
+                    prerequisites=lesson_data['prerequisites'],
+                    is_active=lesson_data['is_active']
+                )
                 db.session.add(lesson)
-            db.session.commit()
+            else:
+                # Update existing lesson
+                lesson.title_cn = lesson_data['title_cn']
+                lesson.title_en = lesson_data['title_en']
+                lesson.position_x = lesson_data['position_x']
+                lesson.position_y = lesson_data['position_y']
+                lesson.prerequisites = lesson_data['prerequisites']
+                lesson.is_active = lesson_data['is_active']
+
+        db.session.commit()
 
 def admin_required(f):
     @wraps(f)
@@ -632,6 +711,153 @@ def get_lesson_content(lesson_id):
                 </ul>
             """
         }
+
+@app.route('/flashcards/<int:lesson_id>')
+@login_required
+def flashcards(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    lessons = Lesson.query.all()
+    return render_template('flashcards.html', 
+                         current_lesson=lesson_id,
+                         lessons=lessons)
+
+@app.route('/api/flashcards/<int:lesson_id>')
+@login_required
+def get_flashcards(lesson_id):
+    try:
+        # Get lesson content
+        lesson_module = import_module(f'lessons.lesson{lesson_id}')
+        lesson = lesson_module.lesson
+        print(f"Processing lesson {lesson_id}")
+        
+        # Extract vocabulary from lesson content
+        cards = []
+        
+        # Go through each stage in the lesson
+        for stage in lesson['content']['stages']:
+            content = stage.get('content', '')
+            if isinstance(content, str):
+                # Extract from main expressions
+                expressions = content.split('<div class="main-expression"')[1:]
+                
+                for expr in expressions:
+                    try:
+                        # Extract Chinese text
+                        chinese = expr.split('chinese-text">')[1].split('</div>')[0].strip()
+                        # Extract pinyin
+                        pinyin = expr.split('pinyin">')[1].split('</div>')[0].strip()
+                        # Extract meaning
+                        meaning = expr.split('meaning">')[1].split('</div>')[0].strip()
+                        
+                        # Only add if we successfully extracted all parts and they're not empty
+                        if chinese and pinyin and meaning:
+                            print(f"Found card: {chinese} ({pinyin}) - {meaning}")  # Debug print
+                            cards.append({
+                                'chinese': chinese,
+                                'pinyin': pinyin,
+                                'english': meaning
+                            })
+                    except IndexError:
+                        continue
+
+                # Also try to extract from usage examples
+                usage_items = content.split('<div class="usage-item"')[1:]
+                for item in usage_items:
+                    try:
+                        # Extract Chinese text
+                        chinese = item.split('usage-chinese">')[1].split('</div>')[0].strip()
+                        # Extract pinyin
+                        pinyin = item.split('usage-pinyin">')[1].split('</div>')[0].strip()
+                        # Extract meaning
+                        meaning = item.split('usage-meaning">')[1].split('</div>')[0].strip()
+                        
+                        # Only add if we successfully extracted all parts and they're not empty
+                        if chinese and pinyin and meaning:
+                            print(f"Found usage card: {chinese} ({pinyin}) - {meaning}")  # Debug print
+                            cards.append({
+                                'chinese': chinese,
+                                'pinyin': pinyin,
+                                'english': meaning
+                            })
+                    except IndexError:
+                        continue
+
+        print(f"Total cards found: {len(cards)}")
+        if not cards:
+            print("Warning: No cards were extracted from the lesson")
+            # Return a sample card for testing if no cards were found
+            cards = [{
+                'chinese': '你好',
+                'pinyin': 'nǐ hǎo',
+                'english': 'hello'
+            }]
+        
+        return jsonify(cards)
+    except Exception as e:
+        print(f"Error in get_flashcards: {str(e)}")
+        import traceback
+        traceback.print_exc()  # Print full error traceback
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/test/<int:lesson_id>')
+def take_test(lesson_id):
+    if lesson_id == 1:
+        questions = lesson1_test.questions
+    else:
+        questions = []  # We'll add more lesson tests later
+    
+    return render_template('test.html', 
+                         lesson_id=lesson_id,
+                         questions=questions)
+
+@app.route('/api/submit-test', methods=['POST'])
+def submit_test():
+    data = request.get_json()
+    lesson_id = data.get('lesson_id')
+    answers = data.get('answers')
+    
+    if lesson_id == 1:
+        questions = lesson1_test.questions
+    else:
+        return jsonify({'error': 'Invalid lesson ID'}), 400
+    
+    # Calculate score
+    correct_count = 0
+    total_questions = len(questions)
+    
+    for i, answer in enumerate(answers):
+        if i < len(questions) and answer == questions[i]['correct']:
+            correct_count += 1
+    
+    score = (correct_count / total_questions) * 100
+    
+    # Update user progress if logged in
+    if current_user.is_authenticated:
+        progress = UserProgress.query.filter_by(
+            user_id=current_user.id,
+            lesson_id=lesson_id
+        ).first()
+        
+        if progress:
+            progress.test_score = score
+            if score >= 80:  # Pass threshold
+                progress.status = 'completed'
+        else:
+            progress = UserProgress(
+                user_id=current_user.id,
+                lesson_id=lesson_id,
+                test_score=score,
+                status='completed' if score >= 80 else 'in_progress'
+            )
+            db.session.add(progress)
+        
+        db.session.commit()
+    
+    return jsonify({
+        'score': score,
+        'correct': correct_count,
+        'total': total_questions
+    })
 
 if __name__ == '__main__':
     init_db()  # Initialize the database

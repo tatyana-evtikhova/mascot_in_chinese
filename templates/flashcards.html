@@ -1,0 +1,1250 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flashcards-container">
+    <!-- Session Info -->
+    <div class="session-info">
+        <div class="progress-text">
+            <span id="current-card">0</span> / <span id="total-cards">0</span>
+        </div>
+        
+        <div class="filter-controls">
+            <select id="filterSelect" class="minimal-select">
+                <option value="all">Show All Cards</option>
+                <option value="notLearned">Show Not Learned</option>
+                <option value="notSure">Show Not Sure</option>
+                <option value="learned">Show Learned</option>
+                <option value="needReview">Show Need Review</option>
+            </select>
+        </div>
+        
+        <div class="lesson-selector">
+            <select id="lessonSelect" class="lesson-select">
+                <option value="">Select Lesson</option>
+                {% for lesson in lessons %}
+                <option value="{{ lesson.id }}" {% if lesson.id == current_lesson %}selected{% endif %}>
+                    Lesson {{ lesson.id }}: {{ lesson.title_en }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Flashcard -->
+    <div class="flashcard-stage">
+        <div class="flashcard" id="flashcard">
+            <div class="flashcard-inner">
+                <div class="flashcard-front">
+                    <div class="character-display">
+                        <span class="chinese-character" onclick="event.stopPropagation(); speakText(this.textContent)"></span>
+                    </div>
+                    <div class="pinyin"></div>
+                </div>
+                <div class="flashcard-back">
+                    <div class="english-meaning"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Navigation -->
+        <div class="card-navigation">
+            <button id="prevBtn" class="nav-btn" disabled>
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="center-controls">
+                <button id="notLearnedBtn" class="status-btn not-learned" title="Not Learned">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <button id="notSureBtn" class="status-btn not-sure" title="Not Sure">
+                    <i class="bi bi-question-lg"></i>
+                </button>
+                <button id="learnedBtn" class="status-btn learned" title="Learned">
+                    <i class="bi bi-check-lg"></i>
+                </button>
+                <button id="flipBtn" class="action-btn primary">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
+                <button id="shuffleBtn" class="action-btn">
+                    <i class="bi bi-shuffle"></i>
+                </button>
+            </div>
+            <button id="nextBtn" class="nav-btn" disabled>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Progress Tracker (moved and restyled) -->
+        <div class="progress-tracker">
+            <div class="tracker-header">
+                <h3>Learning Progress</h3>
+                <div class="total-progress">
+                    <span id="totalProgress">0%</span> Complete
+                </div>
+            </div>
+            <div class="progress-items">
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <i class="bi bi-check-lg text-success"></i> Learned
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill learned" id="learnedProgress"></div>
+                    </div>
+                    <span class="progress-count" id="learnedCount">0</span>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <i class="bi bi-question-lg text-warning"></i> Not Sure
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill not-sure" id="notSureProgress"></div>
+                    </div>
+                    <span class="progress-count" id="notSureCount">0</span>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <i class="bi bi-x-lg text-danger"></i> Not Learned
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill not-learned" id="notLearnedProgress"></div>
+                    </div>
+                    <span class="progress-count" id="notLearnedCount">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Stats (initially hidden) -->
+    <div class="session-stats" style="display: none;">
+        <h3>Session Complete!</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="totalCards">0</div>
+                <div class="stat-label">Total Cards</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="learnedCards">0</div>
+                <div class="stat-label">Learned</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="needReviewCards">0</div>
+                <div class="stat-label">Need Review</div>
+            </div>
+        </div>
+        <button id="reviewNotLearnedBtn" class="btn-primary">Review Not Learned Cards</button>
+    </div>
+
+    <!-- Add completion popup -->
+    <div class="completion-popup" id="completionPopup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="completion-icon">🎉</div>
+                <h2>Session Complete!</h2>
+                <p class="completion-message" id="completionMessage"></p>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-circle">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845
+                            a 15.9155 15.9155 0 0 1 0 31.831
+                            a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path id="progressCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845
+                            a 15.9155 15.9155 0 0 1 0 31.831
+                            a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <text x="18" y="20.35" class="percentage">0%</text>
+                    </svg>
+                    <span class="stat-label">Mastered</span>
+                </div>
+                
+                <div class="detailed-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">
+                            <i class="bi bi-check-lg text-success"></i> Learned
+                        </span>
+                        <span class="stat-value" id="popupLearnedCount">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">
+                            <i class="bi bi-question-lg text-warning"></i> Not Sure
+                        </span>
+                        <span class="stat-value" id="popupNotSureCount">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">
+                            <i class="bi bi-x-lg text-danger"></i> Not Learned
+                        </span>
+                        <span class="stat-value" id="popupNotLearnedCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="popup-actions">
+                <button id="reviewAgainBtn" class="btn-primary">
+                    <i class="bi bi-arrow-repeat"></i> Review Weak Cards
+                </button>
+                <button id="closePopupBtn" class="btn-outline">
+                    <i class="bi bi-x"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Container */
+.flashcards-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 1rem;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Session Info */
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.progress-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* Flashcard Stage */
+.flashcard-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+}
+
+/* Flashcard */
+.flashcard {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    perspective: 1000px;
+    cursor: pointer;
+    margin: 2rem auto;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.flashcard.filtered-out {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    border-radius: 20px;
+    box-shadow: 
+        0 4px 6px rgba(0,0,0,0.03),
+        0 8px 15px rgba(0,0,0,0.05);
+}
+
+.flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 2.5rem;
+    border-radius: 20px;
+    background: white;
+    overflow: hidden;
+}
+
+.flashcard-back {
+    transform: rotateY(180deg);
+    background: white;
+}
+
+/* Card Content */
+.chinese-character {
+    font-size: clamp(2rem, 10vw, 4.5rem);
+    color: #2c3e50;
+    font-weight: 500;
+    min-height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    word-break: break-all;
+    max-width: 90%;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.chinese-character:hover {
+    transform: scale(1.05);
+    color: #e60012;
+}
+
+.chinese-character:active {
+    transform: scale(0.95);
+    color: #ff1a1a;
+}
+
+.pinyin {
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    color: #666;
+    margin: 1rem 0;
+    min-height: 2.5rem;
+    max-width: 90%;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+.english-meaning {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: #2c3e50;
+    min-height: 3rem;
+    max-width: 90%;
+    text-align: center;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+/* Navigation */
+.card-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.nav-btn, .action-btn {
+    border: none;
+    background: none;
+    padding: 0.75rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.nav-btn:hover:not(:disabled),
+.action-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+    color: #2c3e50;
+}
+
+.action-btn.primary {
+    background: #e60012;
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: #ff1a1a;
+}
+
+/* Stats */
+.session-stats {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.stat-item {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e1e1e1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Add new lesson select styles */
+.lesson-select {
+    appearance: none;
+    background: white;
+    border: 1px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    font-size: 1rem;
+    color: #2c3e50;
+    cursor: pointer;
+    width: 300px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    transition: all 0.2s ease;
+    min-width: 150px;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+}
+
+.lesson-select:hover {
+    border-color: #2c3e50;
+}
+
+.lesson-select:focus {
+    outline: none;
+    border-color: #e60012;
+    box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
+}
+
+.minimal-select:hover {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Animations */
+@keyframes correct {
+    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+@keyframes incorrect {
+    0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .flashcard {
+        height: 350px;
+        max-width: 90vw;
+    }
+
+    .chinese-character {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+        min-height: 6rem;
+    }
+
+    .pinyin {
+        font-size: clamp(1rem, 3vw, 1.5rem);
+    }
+
+    .english-meaning {
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .center-controls {
+        gap: 1rem;
+    }
+}
+
+.flashcard.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.flashcard.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.error-message {
+    color: #e74c3c;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+/* Add new status button styles */
+.status-btn {
+    border: none;
+    background: none;
+    padding: 0.75rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+    font-size: 1.2rem;
+    position: relative;
+}
+
+.status-btn:hover {
+    transform: translateY(-2px);
+}
+
+.status-btn.not-learned {
+    color: #e74c3c;
+}
+
+.status-btn.not-learned:hover {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.status-btn.not-sure {
+    color: #f1c40f;
+}
+
+.status-btn.not-sure:hover {
+    background: rgba(241, 196, 15, 0.1);
+}
+
+.status-btn.learned {
+    color: #2ecc71;
+}
+
+.status-btn.learned:hover {
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.status-btn.active {
+    animation: statusUpdate 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-btn.not-learned.active {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.status-btn.not-sure.active {
+    background: rgba(241, 196, 15, 0.1);
+}
+
+.status-btn.learned.active {
+    background: rgba(46, 204, 113, 0.1);
+}
+
+/* Add container styles for better text containment */
+.character-display {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.text-container {
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Add new styles */
+.filter-controls {
+    margin: 0 1rem;
+}
+
+.minimal-select {
+    appearance: none;
+    background: white;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1em;
+}
+
+.progress-tracker {
+    width: 100%;
+    max-width: 800px;  /* Increased width */
+    margin: 2rem auto 0;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.progress-items {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.progress-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+}
+
+.progress-label {
+    min-width: 90px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-fill.learned { background: #2ecc71; }
+.progress-fill.not-sure { background: #f1c40f; }
+.progress-fill.not-learned { background: #e74c3c; }
+
+.progress-count {
+    min-width: 2.5rem;
+    text-align: right;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.text-success { color: #2ecc71; }
+.text-warning { color: #f1c40f; }
+.text-danger { color: #e74c3c; }
+
+/* Add animations for status changes */
+@keyframes statusUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.status-btn.active {
+    animation: statusUpdate 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 768px) {
+    .progress-items {
+        flex-direction: column;
+    }
+    
+    .progress-item {
+        width: 100%;
+    }
+}
+
+/* Add popup styles */
+.completion-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.completion-popup.active {
+    display: flex;
+    opacity: 1;
+}
+
+.popup-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.completion-popup.active .popup-content {
+    transform: translateY(0);
+}
+
+.popup-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.completion-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: bounce 1s ease infinite;
+}
+
+.completion-message {
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.stats-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.stat-circle {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.circular-chart {
+    width: 120px;
+    height: 120px;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 3;
+}
+
+.circle {
+    fill: none;
+    stroke: #e60012;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease;
+}
+
+.percentage {
+    fill: #2c3e50;
+    font-size: 0.5em;
+    text-anchor: middle;
+    font-weight: bold;
+}
+
+.detailed-stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.popup-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.popup-actions button {
+    padding: 0.75rem 1.5rem;
+    min-width: 120px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #e60012;
+    color: white;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #e1e1e1;
+    color: #666;
+}
+
+.btn-primary:hover {
+    background: #ff1a1a;
+    transform: translateY(-2px);
+}
+
+.btn-outline:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 768px) {
+    .stats-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .popup-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+let cards = [];
+let currentIndex = 0;
+let isFlipped = false;
+let startTime = Date.now();
+let cardStatuses = new Map(); // Store learning status for each card
+let filteredCards = [];
+let currentFilter = 'all';
+
+async function loadCards(lessonId) {
+    if (!lessonId) {
+        console.log('No lesson ID provided');
+        return;
+    }
+    
+    try {
+        console.log(`Loading cards for lesson ${lessonId}`);
+        document.getElementById('flashcard').classList.add('loading');
+        
+        const response = await fetch(`/api/flashcards/${lessonId}`);
+        console.log('API Response:', response);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Received data:', data);
+        
+        if (Array.isArray(data)) {
+            cards = data;
+            filteredCards = [...cards];
+            cardStatuses.clear();
+            updateFilter(currentFilter);
+            updateProgress();
+            console.log(`Loaded ${cards.length} cards`);
+            
+            currentIndex = 0;
+            isFlipped = false;
+            startTime = Date.now();
+            
+            if (cards.length > 0) {
+                updateCard();
+                updateControls();
+            } else {
+                console.log('No cards available');
+                document.querySelector('.chinese-character').textContent = 'No cards available';
+                document.querySelector('.pinyin').textContent = '';
+                document.querySelector('.english-meaning').textContent = '';
+                setProgress(0);
+                updateControls();
+            }
+        } else {
+            console.error('Invalid data format:', data);
+            throw new Error('Invalid data format received');
+        }
+    } catch (error) {
+        console.error('Error loading cards:', error);
+        document.querySelector('.chinese-character').textContent = 'Error loading cards';
+    } finally {
+        document.getElementById('flashcard').classList.remove('loading');
+    }
+}
+
+function updateCard() {
+    if (!cards.length) {
+        console.log('No cards to display');
+        return;
+    }
+
+    const card = cards[currentIndex];
+    console.log('Displaying card:', card);
+
+    const chineseElement = document.querySelector('.chinese-character');
+    const pinyinElement = document.querySelector('.pinyin');
+    const englishElement = document.querySelector('.english-meaning');
+
+    chineseElement.textContent = card.chinese;
+    pinyinElement.textContent = card.pinyin;
+    englishElement.textContent = card.english;
+
+    // Update progress
+    const progress = ((currentIndex + 1) / cards.length) * 100;
+    setProgress(progress);
+    document.getElementById('current-card').textContent = currentIndex + 1;
+    document.getElementById('total-cards').textContent = cards.length;
+
+    // Update controls
+    updateControls();
+
+    // Reset flip state if moving to new card
+    if (isFlipped) {
+        isFlipped = false;
+        document.getElementById('flashcard').classList.remove('flipped');
+    }
+
+    // Update status buttons
+    document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
+    const currentStatus = cardStatuses.get(currentIndex);
+    if (currentStatus) {
+        document.getElementById(`${currentStatus}Btn`).classList.add('active');
+    }
+}
+
+function updateControls() {
+    document.getElementById('prevBtn').disabled = !cards.length || currentIndex === 0;
+    document.getElementById('nextBtn').disabled = !cards.length || currentIndex === cards.length - 1;
+    document.getElementById('flipBtn').disabled = !cards.length;
+    document.getElementById('shuffleBtn').disabled = !cards.length;
+}
+
+function flipCard() {
+    const flashcard = document.getElementById('flashcard');
+    isFlipped = !isFlipped;
+    flashcard.classList.toggle('flipped');
+}
+
+function shuffleCards() {
+    if (!cards.length) return;
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    currentIndex = 0;
+    updateCard();
+}
+
+function showSessionStats() {
+    const learned = Array.from(cardStatuses.values()).filter(status => status === 'learned').length;
+    const needReview = Array.from(cardStatuses.values()).filter(status => status === 'notLearned' || status === 'notSure').length;
+
+    document.getElementById('totalCards').textContent = cards.length;
+    document.getElementById('learnedCards').textContent = learned;
+    document.getElementById('needReviewCards').textContent = needReview;
+    
+    document.querySelector('.session-stats').style.display = 'block';
+}
+
+// Event Listeners
+document.getElementById('flashcard').addEventListener('click', flipCard);
+document.getElementById('flipBtn').addEventListener('click', flipCard);
+document.getElementById('shuffleBtn').addEventListener('click', shuffleCards);
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        isFlipped = false;
+        document.getElementById('flashcard').classList.remove('flipped');
+        updateCard();
+    }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+    if (currentIndex < cards.length - 1) {
+        currentIndex++;
+        isFlipped = false;
+        document.getElementById('flashcard').classList.remove('flipped');
+        updateCard();
+    }
+});
+
+document.getElementById('lessonSelect').addEventListener('change', (e) => {
+    loadCards(e.target.value);
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (!cards.length) return;
+    
+    switch(e.key) {
+        case ' ':
+            flipCard();
+            break;
+        case 'ArrowLeft':
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+            break;
+        case 'ArrowRight':
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+            break;
+        case '1':
+            updateCardStatus('notLearned');
+            break;
+        case '2':
+            updateCardStatus('notSure');
+            break;
+        case '3':
+            updateCardStatus('learned');
+            break;
+    }
+});
+
+function setProgress(percent) {
+    // Progress is now handled by the card counter only
+}
+
+// Initial load
+loadCards({{ current_lesson or 'null' }});
+
+function speakText(text) {
+    if (!text) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Try to find a Chinese voice
+    const voices = window.speechSynthesis.getVoices();
+    const chineseVoice = voices.find(voice => 
+        voice.lang.includes('zh') || 
+        voice.lang.includes('cmn') || 
+        voice.name.includes('Chinese')
+    );
+    
+    if (chineseVoice) {
+        utterance.voice = chineseVoice;
+    }
+    
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.8;  // Slightly slower
+    utterance.pitch = 1;
+    
+    window.speechSynthesis.speak(utterance);
+}
+
+// Make sure voices are loaded
+if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        console.log('Voices loaded:', window.speechSynthesis.getVoices());
+    };
+}
+
+// Replace markCard function with new status functions
+function updateCardStatus(status) {
+    if (!cards.length) return;
+    
+    // Remove active class from all status buttons
+    document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Add active class to clicked button
+    document.getElementById(`${status}Btn`).classList.add('active');
+    
+    // Store the status
+    cardStatuses.set(currentIndex, status);
+    
+    // Update progress immediately
+    updateProgress();
+    
+    // Automatically move to next card after a short delay
+    setTimeout(() => {
+        if (currentIndex < cards.length - 1) {
+            currentIndex++;
+            isFlipped = false;
+            document.getElementById('flashcard').classList.remove('flipped');
+            updateCard();
+        } else {
+            showCompletionPopup();
+        }
+    }, 500);
+}
+
+// Add event listeners for status buttons
+document.getElementById('notLearnedBtn').addEventListener('click', () => updateCardStatus('notLearned'));
+document.getElementById('notSureBtn').addEventListener('click', () => updateCardStatus('notSure'));
+document.getElementById('learnedBtn').addEventListener('click', () => updateCardStatus('learned'));
+
+// Add filter function
+function updateFilter(filter) {
+    currentFilter = filter;
+    
+    // Add transition class
+    document.getElementById('flashcard').classList.add('filtered-out');
+    
+    setTimeout(() => {
+        // Your existing filter logic
+        switch(filter) {
+            case 'notLearned':
+                filteredCards = cards.filter((_, index) => cardStatuses.get(index) === 'notLearned');
+                break;
+            case 'notSure':
+                filteredCards = cards.filter((_, index) => cardStatuses.get(index) === 'notSure');
+                break;
+            case 'learned':
+                filteredCards = cards.filter((_, index) => cardStatuses.get(index) === 'learned');
+                break;
+            case 'needReview':
+                filteredCards = cards.filter((_, index) => 
+                    cardStatuses.get(index) === 'notLearned' || 
+                    cardStatuses.get(index) === 'notSure'
+                );
+                break;
+            default:
+                filteredCards = [...cards];
+        }
+        
+        currentIndex = 0;
+        updateCard();
+        updateProgress();
+        
+        // Remove transition class
+        document.getElementById('flashcard').classList.remove('filtered-out');
+    }, 300);
+}
+
+// Add progress update function
+function updateProgress() {
+    const total = cards.length;
+    if (total === 0) return;
+
+    const learned = Array.from(cardStatuses.values()).filter(s => s === 'learned').length;
+    const notSure = Array.from(cardStatuses.values()).filter(s => s === 'notSure').length;
+    const notLearned = Array.from(cardStatuses.values()).filter(s => s === 'notLearned').length;
+    
+    // Calculate percentages
+    const learnedPercent = (learned/total)*100;
+    const notSurePercent = (notSure/total)*100;
+    const notLearnedPercent = (notLearned/total)*100;
+    
+    // Update progress bars with animation
+    requestAnimationFrame(() => {
+        document.getElementById('learnedProgress').style.width = `${learnedPercent}%`;
+        document.getElementById('notSureProgress').style.width = `${notSurePercent}%`;
+        document.getElementById('notLearnedProgress').style.width = `${notLearnedPercent}%`;
+    });
+    
+    // Update counts
+    document.getElementById('learnedCount').textContent = learned;
+    document.getElementById('notSureCount').textContent = notSure;
+    document.getElementById('notLearnedCount').textContent = notLearned;
+    
+    // Update total progress
+    const totalProgress = Math.round((learned + (notSure * 0.5))/total * 100);
+    document.getElementById('totalProgress').textContent = `${totalProgress}%`;
+}
+
+// Add filter change listener
+document.getElementById('filterSelect').addEventListener('change', (e) => {
+    updateFilter(e.target.value);
+});
+
+// Add completion handling
+function showCompletionPopup() {
+    const total = cards.length;
+    const learned = Array.from(cardStatuses.values()).filter(s => s === 'learned').length;
+    const notSure = Array.from(cardStatuses.values()).filter(s => s === 'notSure').length;
+    const notLearned = Array.from(cardStatuses.values()).filter(s => s === 'notLearned').length;
+    
+    // Calculate percentage
+    const percentage = Math.round((learned/total) * 100);
+    
+    // Update circle progress
+    const circle = document.getElementById('progressCircle');
+    circle.style.strokeDasharray = `${percentage}, 100`;
+    document.querySelector('.percentage').textContent = `${percentage}%`;
+    
+    // Update counts
+    document.getElementById('popupLearnedCount').textContent = learned;
+    document.getElementById('popupNotSureCount').textContent = notSure;
+    document.getElementById('popupNotLearnedCount').textContent = notLearned;
+    
+    // Set encouraging message
+    const message = getEncouragingMessage(percentage);
+    document.getElementById('completionMessage').textContent = message;
+    
+    // Show popup
+    const popup = document.getElementById('completionPopup');
+    popup.classList.add('active');
+}
+
+function getEncouragingMessage(percentage) {
+    if (percentage >= 90) return "Outstanding! You're mastering these cards! 🌟";
+    if (percentage >= 70) return "Great progress! Keep up the excellent work! 💪";
+    if (percentage >= 50) return "You're making steady progress! Keep going! 🎯";
+    return "Every step counts! Keep practicing! 🌱";
+}
+
+// Add popup button handlers
+document.getElementById('reviewAgainBtn').addEventListener('click', () => {
+    const popup = document.getElementById('completionPopup');
+    popup.classList.remove('active');
+    
+    // Filter to show only not learned and not sure cards
+    updateFilter('needReview');
+});
+
+document.getElementById('closePopupBtn').addEventListener('click', () => {
+    document.getElementById('completionPopup').classList.remove('active');
+});
+</script>
+{% endblock %} 
