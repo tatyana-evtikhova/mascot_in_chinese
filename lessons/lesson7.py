@@ -12,7 +12,7 @@ lesson = {
             {
                 'type': 'main',
                 'name': 'Here and There',
-                'content': '''
+    'content': '''
                     <div class="main-expression">
                         <div class="expression-content">
                             <div class="chinese-text" onclick="speakText(this.textContent)">这里</div>
@@ -175,7 +175,7 @@ lesson = {
                 '''
             }
         ],
-        'tips': '''
+    'tips': '''
            <div class="study-tips">
                <div class="section-title">
                    <div class="title-with-icon">
@@ -203,8 +203,8 @@ lesson = {
                    <p>Practice with real objects to reinforce spatial relationships</p>
                </div>
            </div>
-        ''',
-        'mistakes': '''
+''',
+    'mistakes': '''
            <div class="study-tips warning">
                <div class="tip-block">
                    <h4>Word Choice</h4>

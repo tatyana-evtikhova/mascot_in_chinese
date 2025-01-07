@@ -44,5 +44,15 @@ class UserProgress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
-    status = db.Column(db.String(20))
-    completed_at = db.Column(db.DateTime) 
+    status = db.Column(db.String(20))  # 'not_started', 'in_progress', 'completed'
+    completed_at = db.Column(db.DateTime)
+    test_score = db.Column(db.Float)
+    flashcards_completed = db.Column(db.Boolean, default=False)
+    lesson_viewed = db.Column(db.Boolean, default=False)
+
+    @property
+    def is_fully_completed(self):
+        return (self.test_score is not None and 
+                self.test_score >= 80 and 
+                self.flashcards_completed and 
+                self.lesson_viewed) 

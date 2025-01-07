@@ -117,10 +117,16 @@
                         <i class="bi bi-card-text"></i>
                         Flashcards
                     </a>
-                    <div class="practice-btn test-btn disabled">
+                    <a href="{{ url_for('take_test', lesson_id=lesson.id) }}" 
+                       class="practice-btn test-btn {% if lesson.id != 1 %}disabled{% endif %}"
+                       {% if lesson.id != 1 %}onclick="return false;"{% endif %}>
                         <i class="bi bi-journal-check"></i>
-                        Take Test (Coming Soon)
-                    </div>
+                        {% if lesson.id == 1 %}
+                            Take Test
+                        {% else %}
+                            Test (Coming Soon)
+                        {% endif %}
+                    </a>
                 </div>
             </div>
         </aside>
@@ -140,14 +146,6 @@
             <span class="nav-icon">→</span>
         </a>
         {% endif %}
-    </div>
-
-    <div class="lesson-actions">
-        <a href="{{ url_for('take_test', lesson_id=lesson.id) }}" 
-           class="test-btn {% if not lesson.is_active %}disabled{% endif %}"
-           {% if not lesson.is_active %}onclick="return false;"{% endif %}>
-            Take Test
-        </a>
     </div>
 </div>
 

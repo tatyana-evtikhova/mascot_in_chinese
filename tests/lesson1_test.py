@@ -30,7 +30,7 @@ questions = [
         'correct': 1
     },
     {
-        'text': 'How do you say "What's your name?" in Chinese?',
+        'text': "How do you say 'What\'s your name?' in Chinese?",
         'options': ['你叫什么名字？', '你好吗？', '你是谁？', '你在哪里？'],
         'correct': 0
     },

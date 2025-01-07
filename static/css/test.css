@@ -1,102 +1,205 @@
 .test-container {
     max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    margin: 1rem auto;
+    padding: 0 1.5rem;
 }
 
 .test-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.test-header h1 {
+    color: var(--notion-text-default);
+    margin-bottom: 0.25rem;
+    font-size: 1.5rem;
+}
+
+.test-header p {
+    color: var(--notion-text-gray);
+    font-size: 0.9rem;
+    margin: 0;
 }
 
 .question-card {
     background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.question-card h3 {
+    color: var(--notion-red);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
 }
 
 .question-text {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--notion-text-default);
+    line-height: 1.5;
 }
 
 .options {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-}
-
-.option {
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
 }
 
-.option label {
+.option {
+    position: relative;
+    padding: 0;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    border: 2px solid transparent;
     cursor: pointer;
+}
+
+.option:hover {
+    background-color: var(--notion-bg-hover);
+}
+
+.option input[type="radio"] {
+    display: none;
+}
+
+.option label {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--notion-text-default);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.option input[type="radio"]:checked + label {
+    background: rgba(230, 0, 18, 0.05);
+}
+
+.option input[type="radio"]:checked ~ label {
+    background: rgba(230, 0, 18, 0.05);
+}
+
+.option input[type="radio"]:checked {
+    border-color: var(--notion-red);
 }
 
 .submit-btn {
     width: 100%;
-    padding: 1rem;
+    padding: 0.75rem;
     background: var(--notion-red);
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 1.1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    margin-top: 1.5rem;
 }
 
 .submit-btn:hover {
     background: #cc0010;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
 }
 
 .results-card {
     background: white;
-    border-radius: 8px;
-    padding: 2rem;
+    border-radius: 12px;
+    padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
 .score-circle {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    border: 8px solid var(--notion-red);
+    border: 6px solid var(--notion-red);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 2rem auto;
+    margin: 1rem auto;
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.15);
+    animation: scoreAppear 0.6s ease-out;
+}
+
+@keyframes scoreAppear {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .score-number {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: bold;
     color: var(--notion-red);
+}
+
+.score-message {
+    font-size: 1rem;
+    margin: 0.75rem 0;
+    animation: fadeIn 0.5s ease-out 0.3s both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .action-buttons {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .retry-btn, .continue-btn {
-    padding: 0.8rem 1.5rem;
-    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .retry-btn {
-    background: #f0f0f0;
+    background: #f5f5f5;
     border: 1px solid #ddd;
+    color: var(--notion-text-default);
+}
+
+.retry-btn:hover {
+    background: #ebebeb;
+    transform: translateY(-2px);
 }
 
 .continue-btn {
@@ -105,10 +208,155 @@
     border: none;
 }
 
+.continue-btn:hover {
+    background: #cc0010;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
+}
+
 .score-message.pass {
     color: #2ecc71;
 }
 
 .score-message.retry {
     color: #e74c3c;
+}
+
+.results-breakdown {
+    margin-top: 1rem;
+    text-align: left;
+}
+
+.results-breakdown h3 {
+    color: var(--notion-text-default);
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.questions-review {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.question-result {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.75rem;
+    border-left: 4px solid;
+}
+
+.question-result.correct {
+    border-left-color: #2ecc71;
+}
+
+.question-result.incorrect {
+    border-left-color: #e74c3c;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.question-number {
+    font-weight: 500;
+    color: var(--notion-text-default);
+}
+
+.result-icon {
+    font-size: 1.2rem;
+}
+
+.correct .result-icon {
+    color: #2ecc71;
+}
+
+.incorrect .result-icon {
+    color: #e74c3c;
+}
+
+.result-content .question-text {
+    font-size: 1rem;
+    color: var(--notion-text-gray);
+    margin-bottom: 1rem;
+}
+
+.answer-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.your-answer, .correct-answer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.9rem;
+    color: var(--notion-text-gray);
+    min-width: 100px;
+}
+
+.answer {
+    font-weight: 500;
+    color: var(--notion-text-default);
+}
+
+.correct-answer .answer {
+    color: #2ecc71;
+}
+
+@media (max-width: 768px) {
+    .test-container {
+        padding: 0 1rem;
+    }
+    
+    .question-card {
+        padding: 1.5rem;
+    }
+    
+    .option label {
+        font-size: 1rem;
+        padding: 0.6rem 1rem 0.6rem 2.2rem;
+    }
+    
+    .score-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .score-number {
+        font-size: 1.75rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .retry-btn, .continue-btn {
+        width: 100%;
+    }
+    
+    .results-breakdown {
+        margin-top: 1.5rem;
+    }
+    
+    .question-result {
+        padding: 0.75rem;
+    }
+    
+    .your-answer, .correct-answer {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .label {
+        min-width: auto;
+    }
 } 

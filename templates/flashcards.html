@@ -182,8 +182,8 @@
                 <button id="reviewAgainBtn" class="btn-primary">
                     <i class="bi bi-arrow-repeat"></i> Review Weak Cards
                 </button>
-                <button id="closePopupBtn" class="btn-outline">
-                    <i class="bi bi-x"></i> Close
+                <button id="takeTestBtn" class="btn-primary">
+                    <i class="bi bi-pencil-square"></i> Take Test
                 </button>
             </div>
         </div>
@@ -796,43 +796,44 @@
 
 .popup-actions {
     display: flex;
-    gap: 1.5rem;
-    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
 .popup-actions button {
+    flex: 1;
     padding: 0.75rem 1.5rem;
-    min-width: 120px;
     border-radius: 8px;
-    border: none;
-    cursor: pointer;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
-    font-weight: 500;
+    cursor: pointer;
 }
 
-.btn-primary {
-    background: #e60012;
+.popup-actions .btn-primary {
+    background: var(--notion-red);
     color: white;
+    border: none;
 }
 
-.btn-outline {
-    background: transparent;
-    border: 1px solid #e1e1e1;
-    color: #666;
-}
-
-.btn-primary:hover {
-    background: #ff1a1a;
+.popup-actions .btn-primary:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.2);
 }
 
-.btn-outline:hover {
-    background: #f8f9fa;
+#takeTestBtn {
+    background: white !important;
+    color: var(--notion-red) !important;
+    border: 2px solid var(--notion-red) !important;
+}
+
+#takeTestBtn:hover {
+    box-shadow: 0 4px 12px rgba(230, 0, 18, 0.1);
     transform: translateY(-2px);
+    background: rgba(230, 0, 18, 0.05) !important;
 }
 
 @keyframes bounce {
@@ -881,8 +882,8 @@ async function loadCards(lessonId) {
         const data = await response.json();
         console.log('Received data:', data);
         
-        if (Array.isArray(data)) {
-            cards = data;
+        if (data && Array.isArray(data.cards)) {
+            cards = data.cards;
             filteredCards = [...cards];
             cardStatuses.clear();
             updateFilter(currentFilter);
@@ -1202,8 +1203,19 @@ document.getElementById('filterSelect').addEventListener('change', (e) => {
 function showCompletionPopup() {
     const total = cards.length;
     const learned = Array.from(cardStatuses.values()).filter(s => s === 'learned').length;
-    const notSure = Array.from(cardStatuses.values()).filter(s => s === 'notSure').length;
-    const notLearned = Array.from(cardStatuses.values()).filter(s => s === 'notLearned').length;
+    
+    // Mark flashcards as completed if 80% or more are learned
+    if ((learned / total) >= 0.8) {
+        fetch('/api/mark-flashcards-complete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                lesson_id: {{ current_lesson }}
+            })
+        });
+    }
     
     // Calculate percentage
     const percentage = Math.round((learned/total) * 100);
@@ -1215,8 +1227,8 @@ function showCompletionPopup() {
     
     // Update counts
     document.getElementById('popupLearnedCount').textContent = learned;
-    document.getElementById('popupNotSureCount').textContent = notSure;
-    document.getElementById('popupNotLearnedCount').textContent = notLearned;
+    document.getElementById('popupNotSureCount').textContent = Array.from(cardStatuses.values()).filter(s => s === 'notSure').length;
+    document.getElementById('popupNotLearnedCount').textContent = Array.from(cardStatuses.values()).filter(s => s === 'notLearned').length;
     
     // Set encouraging message
     const message = getEncouragingMessage(percentage);
@@ -1243,8 +1255,8 @@ document.getElementById('reviewAgainBtn').addEventListener('click', () => {
     updateFilter('needReview');
 });
 
-document.getElementById('closePopupBtn').addEventListener('click', () => {
-    document.getElementById('completionPopup').classList.remove('active');
+document.getElementById('takeTestBtn').addEventListener('click', () => {
+    window.location.href = '/test/' + {{ current_lesson }};
 });
 </script>
 {% endblock %} 

@@ -165,9 +165,29 @@ def get_progress(user_id):
     } for p in progress])
 
 @app.route('/lesson/<int:lesson_id>')
+@login_required
 def lesson(lesson_id):
     lesson = Lesson.query.get_or_404(lesson_id)
     lessons = Lesson.query.all()
+    
+    # Create or update progress record when user views lesson
+    progress = UserProgress.query.filter_by(
+        user_id=current_user.id,
+        lesson_id=lesson_id
+    ).first()
+    
+    if not progress:
+        progress = UserProgress(
+            user_id=current_user.id,
+            lesson_id=lesson_id,
+            status='in_progress',
+            lesson_viewed=True
+        )
+        db.session.add(progress)
+    else:
+        progress.lesson_viewed = True
+    
+    db.session.commit()
     
     try:
         lesson_module = __import__(f'lessons.lesson{lesson_id}', fromlist=['lesson'])
@@ -424,47 +444,24 @@ def admin_dashboard():
 
 @app.route('/dashboard')
 @login_required
-def user_dashboard():
-    # Calculate user progress
-    total_lessons = Lesson.query.count()
-    completed_lessons = UserProgress.query.filter_by(
-        user_id=current_user.id,
-        status='completed'
-    ).count()
+def dashboard():
+    # Get all lessons
+    lessons = Lesson.query.order_by(Lesson.id).all()
+    total_lessons = len(lessons)
     
-    progress_percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
+    # Get user progress for all lessons
+    progress_records = UserProgress.query.filter_by(user_id=current_user.id).all()
+    user_progress = {p.lesson_id: p for p in progress_records}
     
-    # Mock data for demonstration
-    achievements = [
-        {
-            'icon': '🌟',
-            'name': 'First Lesson',
-            'description': 'Complete your first lesson',
-            'unlocked': completed_lessons > 0
-        },
-        {
-            'icon': '🔥',
-            'name': '3-Day Streak',
-            'description': 'Study for 3 days in a row',
-            'unlocked': False
-        }
-    ]
-    
-    recent_activities = [
-        {
-            'icon': 'bi-book',
-            'title': 'Completed Basic Greetings',
-            'timestamp': datetime.now()
-        }
-    ]
+    # Calculate completed lessons
+    completed_lessons = sum(1 for p in progress_records if p.is_fully_completed)
     
     return render_template('user/dashboard.html',
-                         progress_percentage=progress_percentage,
-                         completed_lessons=completed_lessons,
-                         streak_days=3,  # Mock data
-                         total_time=12.5,  # Mock data
-                         achievements=achievements,
-                         recent_activities=recent_activities)
+        lessons=lessons,
+        user_progress=user_progress,
+        completed_lessons=completed_lessons,
+        total_lessons=total_lessons
+    )
 
 @app.route('/profile')
 @login_required
@@ -728,7 +725,6 @@ def get_flashcards(lesson_id):
         # Get lesson content
         lesson_module = import_module(f'lessons.lesson{lesson_id}')
         lesson = lesson_module.lesson
-        print(f"Processing lesson {lesson_id}")
         
         # Extract vocabulary from lesson content
         cards = []
@@ -751,7 +747,6 @@ def get_flashcards(lesson_id):
                         
                         # Only add if we successfully extracted all parts and they're not empty
                         if chinese and pinyin and meaning:
-                            print(f"Found card: {chinese} ({pinyin}) - {meaning}")  # Debug print
                             cards.append({
                                 'chinese': chinese,
                                 'pinyin': pinyin,
@@ -773,7 +768,6 @@ def get_flashcards(lesson_id):
                         
                         # Only add if we successfully extracted all parts and they're not empty
                         if chinese and pinyin and meaning:
-                            print(f"Found usage card: {chinese} ({pinyin}) - {meaning}")  # Debug print
                             cards.append({
                                 'chinese': chinese,
                                 'pinyin': pinyin,
@@ -782,22 +776,56 @@ def get_flashcards(lesson_id):
                     except IndexError:
                         continue
 
-        print(f"Total cards found: {len(cards)}")
         if not cards:
-            print("Warning: No cards were extracted from the lesson")
-            # Return a sample card for testing if no cards were found
-            cards = [{
-                'chinese': '你好',
-                'pinyin': 'nǐ hǎo',
-                'english': 'hello'
-            }]
+            return jsonify({'error': 'No flashcards found for this lesson'}), 404
         
-        return jsonify(cards)
+        response_data = {
+            'cards': cards,
+            'progress': None
+        }
+        
+        # Get progress record
+        progress = UserProgress.query.filter_by(
+            user_id=current_user.id,
+            lesson_id=lesson_id
+        ).first()
+        
+        if progress:
+            response_data['progress'] = {
+                'flashcards_completed': progress.flashcards_completed,
+                'test_score': progress.test_score
+            }
+        else:
+            response_data['progress'] = {
+                'flashcards_completed': False,
+                'test_score': None
+            }
+        
+        return jsonify(response_data)
+        
     except Exception as e:
         print(f"Error in get_flashcards: {str(e)}")
         import traceback
-        traceback.print_exc()  # Print full error traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/mark-flashcards-complete', methods=['POST'])
+@login_required
+def mark_flashcards_complete():
+    data = request.get_json()
+    lesson_id = data.get('lesson_id')
+    
+    progress = UserProgress.query.filter_by(
+        user_id=current_user.id,
+        lesson_id=lesson_id
+    ).first()
+    
+    if progress:
+        progress.flashcards_completed = True
+        db.session.commit()
+        return jsonify({'success': True})
+    
+    return jsonify({'error': 'Progress record not found'}), 404
 
 @app.route('/test/<int:lesson_id>')
 def take_test(lesson_id):
@@ -811,6 +839,7 @@ def take_test(lesson_id):
                          questions=questions)
 
 @app.route('/api/submit-test', methods=['POST'])
+@login_required
 def submit_test():
     data = request.get_json()
     lesson_id = data.get('lesson_id')
@@ -831,27 +860,28 @@ def submit_test():
     
     score = (correct_count / total_questions) * 100
     
-    # Update user progress if logged in
-    if current_user.is_authenticated:
-        progress = UserProgress.query.filter_by(
+    # Get progress record
+    progress = UserProgress.query.filter_by(
+        user_id=current_user.id,
+        lesson_id=lesson_id
+    ).first()
+    
+    if not progress:
+        progress = UserProgress(
             user_id=current_user.id,
-            lesson_id=lesson_id
-        ).first()
-        
-        if progress:
-            progress.test_score = score
-            if score >= 80:  # Pass threshold
-                progress.status = 'completed'
-        else:
-            progress = UserProgress(
-                user_id=current_user.id,
-                lesson_id=lesson_id,
-                test_score=score,
-                status='completed' if score >= 80 else 'in_progress'
-            )
-            db.session.add(progress)
-        
-        db.session.commit()
+            lesson_id=lesson_id,
+            status='in_progress'
+        )
+        db.session.add(progress)
+    
+    progress.test_score = score
+    
+    # Update status based on both test score and flashcards completion
+    if score >= 80 and progress.flashcards_completed:
+        progress.status = 'completed'
+        progress.completed_at = datetime.utcnow()
+    
+    db.session.commit()
     
     return jsonify({
         'score': score,

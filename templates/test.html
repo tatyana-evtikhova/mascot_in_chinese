@@ -9,17 +9,19 @@
 
     <form id="testForm" class="test-form">
         {% for question in questions %}
+        {% set question_number = loop.index %}
         <div class="question-card">
-            <h3>Question {{ loop.index }}</h3>
+            <h3>Question {{ question_number }}</h3>
             <p class="question-text">{{ question.text }}</p>
             <div class="options">
                 {% for option in question.options %}
                 <div class="option">
                     <input type="radio" 
-                           name="q{{ loop.parent.index0 }}" 
-                           id="q{{ loop.parent.index0 }}o{{ loop.index0 }}"
-                           value="{{ loop.index0 }}">
-                    <label for="q{{ loop.parent.index0 }}o{{ loop.index0 }}">{{ option }}</label>
+                           name="question{{ question_number }}" 
+                           id="q{{ question_number }}_{{ loop.index0 }}"
+                           value="{{ loop.index0 }}"
+                           required>
+                    <label for="q{{ question_number }}_{{ loop.index0 }}">{{ option }}</label>
                 </div>
                 {% endfor %}
             </div>
@@ -37,6 +39,10 @@
             </div>
         </div>
         <p class="score-message"></p>
+        <div class="results-breakdown">
+            <h3>Detailed Results</h3>
+            <div class="questions-review"></div>
+        </div>
         <div class="action-buttons">
             <button onclick="location.reload()" class="retry-btn">Try Again</button>
             <button onclick="location.href='/lesson-map'" class="continue-btn">Continue Learning</button>
@@ -53,8 +59,8 @@ document.getElementById('testForm').addEventListener('submit', async function(e)
     const answers = [];
     const questions = {{ questions|length }};
     
-    for (let i = 0; i < questions; i++) {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    for (let i = 1; i <= questions; i++) {
+        const selected = document.querySelector(`input[name="question${i}"]:checked`);
         answers.push(selected ? parseInt(selected.value) : -1);
     }
     
@@ -89,6 +95,43 @@ document.getElementById('testForm').addEventListener('submit', async function(e)
             message.textContent = 'Keep practicing! Try again to improve your score.';
             message.className = 'score-message retry';
         }
+        
+        // Show detailed results
+        const questionsReview = results.querySelector('.questions-review');
+        questionsReview.innerHTML = '';
+        
+        const questions = {{ questions|tojson|safe }};
+        answers.forEach((answer, index) => {
+            const question = questions[index];
+            const isCorrect = answer === question.correct;
+            
+            const questionResult = document.createElement('div');
+            questionResult.className = `question-result ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            questionResult.innerHTML = `
+                <div class="result-header">
+                    <span class="question-number">Question ${index + 1}</span>
+                    <span class="result-icon">${isCorrect ? '✓' : '✗'}</span>
+                </div>
+                <div class="result-content">
+                    <p class="question-text">${question.text}</p>
+                    <div class="answer-comparison">
+                        <div class="your-answer">
+                            <span class="label">Your answer:</span>
+                            <span class="answer">${question.options[answer]}</span>
+                        </div>
+                        ${!isCorrect ? `
+                            <div class="correct-answer">
+                                <span class="label">Correct answer:</span>
+                                <span class="answer">${question.options[question.correct]}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            questionsReview.appendChild(questionResult);
+        });
         
     } catch (error) {
         console.error('Error submitting test:', error);
