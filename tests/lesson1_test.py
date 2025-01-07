@@ -30,7 +30,7 @@ questions = [
         'correct': 1
     },
     {
-        'text': 'How do you say "What’s your name?" in Chinese?',
+        'text': 'How do you say "What's your name?" in Chinese?',
         'options': ['你叫什么名字？', '你好吗？', '你是谁？', '你在哪里？'],
         'correct': 0
     },
@@ -48,45 +48,5 @@ questions = [
         'text': 'How do you say "See you tomorrow!" in Chinese?',
         'options': ['谢谢！', '明天见！', '再见！', '你好！'],
         'correct': 1
-    },
-    {
-        'text': 'What does "明天见" mean?',
-        'options': ['See you tomorrow', 'See you later', 'See you soon', 'Goodbye'],
-        'correct': 0
-    },
-    {
-        'text': 'Which of the following is a casual way to say "Sorry"?',
-        'options': ['再见', '对不起', '谢谢', '你好'],
-        'correct': 1
-    },
-    {
-        'text': 'How do you politely greet an elder or respected individual?',
-        'options': ['你好', '再见', '谢谢', '您好'],
-        'correct': 3
-    },
-    {
-        'text': 'What does "请问" indicate at the start of a sentence?',
-        'options': ['Apology', 'Politeness', 'Casualness', 'Respect'],
-        'correct': 1
-    },
-    {
-        'text': 'What’s a common response to "你好"?',
-        'options': ['对不起', '你好', '谢谢', '再见'],
-        'correct': 1
-    },
-    {
-        'text': 'Which phrase is appropriate when greeting a stranger?',
-        'options': ['再见', '请问', '你好', '认识'],
-        'correct': 2
-    },
-    {
-        'text': 'What is the polite way to say "Excuse me" in Chinese?',
-        'options': ['再见', '对不起', '请问', '认识'],
-        'correct': 2
-    },
-    {
-        'text': 'Which phrase can be used to express gratitude?',
-        'options': ['谢谢', '对不起', '再见', '你好'],
-        'correct': 0
     }
 ] 
